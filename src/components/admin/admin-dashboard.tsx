@@ -28,7 +28,7 @@ export function AdminDashboard() {
           <CardContent>
             <p className="text-sm text-muted-foreground">User 'Alice' logged in.</p>
             <p className="text-sm text-muted-foreground">User 'Bob' sent a message.</p>
-            <p className="text-sm text_muted-foreground">New user 'Diana' registered.</p>
+            <p className="text-sm text-muted-foreground">New user 'Diana' registered.</p>
           </CardContent>
         </Card>
         <Card>
@@ -55,3 +55,5 @@ export function AdminDashboard() {
     </div>
   );
 }
+
+    

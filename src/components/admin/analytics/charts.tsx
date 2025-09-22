@@ -1,3 +1,5 @@
+
+
 "use client"
 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
@@ -201,19 +203,22 @@ export function ActivityBreakdownChart() {
 
 export function EngagementRateChart() {
     const data = useMemo(() => generateEngagementRateData(), []);
+    const yAxisTickFormatter = (value: number) => `${value}%`;
+    const tooltipFormatter = (value: number) => `${value}%`;
+
     return (
         <Card className="h-full">
             <CardHeader>
                 <CardTitle>Engagement Rate (DAU/MAU)</CardTitle>
                 <CardDescription>User stickiness over the last 6 months.</CardDescription>
-            </Header>
+            </CardHeader>
             <CardContent>
                 <ChartContainer config={engagementRateChartConfig} className="h-[250px] w-full">
                     <AreaChart data={data} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
                         <CartesianGrid vertical={false} />
                         <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} fontSize={12} />
-                        <YAxis tickFormatter={(value) => `${value}%`} tickLine={false} axisLine={false} tickMargin={8} fontSize={12} />
-                        <ChartTooltip content={<ChartTooltipContent indicator="dot" formatter={(value) => `${value}%`} />} />
+                        <YAxis tickFormatter={yAxisTickFormatter} tickLine={false} axisLine={false} tickMargin={8} fontSize={12} />
+                        <ChartTooltip content={<ChartTooltipContent indicator="dot" formatter={tooltipFormatter} />} />
                         <Area
                             dataKey="engagement"
                             type="monotone"
@@ -286,3 +291,5 @@ export function HourlyMessageVolumeChart() {
         </Card>
     );
 }
+
+    
