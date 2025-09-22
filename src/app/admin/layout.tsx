@@ -18,7 +18,7 @@ export default function AdminLayout({
     <ProtectedRoute adminOnly={true}>
       <div 
         className={cn(
-          "grid min-h-screen w-full",
+          "grid h-screen w-full overflow-hidden",
           isSidebarCollapsed ? "md:grid-cols-[80px_1fr]" : "md:grid-cols-[280px_1fr]"
         )}
       >

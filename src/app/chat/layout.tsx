@@ -12,7 +12,7 @@ export default function AppLayout({
 }) {
   return (
     <ProtectedRoute>
-      <div className="grid min-h-screen w-full md:grid-cols-[280px_1fr]">
+      <div className="grid h-screen w-full overflow-hidden md:grid-cols-[280px_1fr]">
         <div className="hidden border-r bg-muted/40 md:block">
           <AppSidebar />
         </div>
