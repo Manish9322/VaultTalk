@@ -14,22 +14,12 @@ export function ProtectedRoute({ children, adminOnly = false }: { children: Reac
   useEffect(() => {
     if (isLoading) return;
 
-    if (adminOnly) {
-      const token = localStorage.getItem('vault-admin-token');
-      // In a real app, you'd verify the token with a backend.
-      // Here, we just check for its presence.
-      if (token) {
+    if (user) {
         setIsAuthenticated(true);
-      } else {
-        router.push('/admin');
-      }
     } else {
-        if (user) {
-            setIsAuthenticated(true);
-        } else {
-            router.push('/login');
-        }
+        router.push('/login');
     }
+    
   }, [isLoading, user, router, adminOnly]);
 
   if (isLoading || !isAuthenticated) {

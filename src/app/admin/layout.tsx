@@ -1,7 +1,6 @@
 
 "use client";
 
-import { ProtectedRoute } from "@/components/protected-route";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { AdminHeader } from "@/components/admin/admin-header";
 import { useState } from "react";
@@ -15,7 +14,6 @@ export default function AdminLayout({
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   return (
-    <ProtectedRoute adminOnly={true}>
       <div 
         className={cn(
           "grid h-screen w-full overflow-hidden",
@@ -32,6 +30,5 @@ export default function AdminLayout({
           </main>
         </div>
       </div>
-    </ProtectedRoute>
   );
 }

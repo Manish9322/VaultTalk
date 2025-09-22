@@ -63,10 +63,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const login = (email: string) => {
     const foundUser = users.find(u => u.email === email);
     if (foundUser) {
-      if (foundUser.email === 'admin@vaulttalk.com') {
-        // Handle admin login separately
-        localStorage.setItem('vault-admin-token', 'fake-jwt-for-admin');
-      }
       localStorage.setItem('vault-user', JSON.stringify(foundUser));
       setUser(foundUser);
       if (foundUser.email === 'admin@vaulttalk.com') {
@@ -82,11 +78,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const logout = () => {
     const wasAdmin = user?.email === 'admin@vaulttalk.com';
     localStorage.removeItem('vault-user');
-    if (wasAdmin) {
-      localStorage.removeItem('vault-admin-token');
-    }
     setUser(null);
-    router.push(wasAdmin ? '/admin' : '/');
+    router.push(wasAdmin ? '/admin/dashboard' : '/');
   };
 
   const register = (details: { name: string; email: string }) => {
