@@ -3,7 +3,7 @@
 
 import { useAuth } from "@/hooks/use-auth";
 import Link from "next/link";
-import { LogOut, Home, Users, BarChart, Settings, Activity, ChevronLeft, ChevronRight } from "lucide-react";
+import { LogOut, Home, Users, BarChart, Settings, Activity, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import { Logo } from "../logo";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
@@ -11,6 +11,7 @@ import { Button } from "../ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog";
 import { useState } from "react";
+import { Separator } from "../ui/separator";
 
 const navLinks = [
     { href: "/admin/dashboard", label: "Dashboard", icon: Home },
@@ -37,17 +38,8 @@ export function AdminSidebar({ isCollapsed, onCollapse }: { isCollapsed: boolean
           {!isCollapsed ? <Logo /> : <Users className="h-6 w-6"/>}
         </div>
 
-        <Button 
-          variant="outline" 
-          size="icon" 
-          className="absolute -right-4 top-14 z-10 hidden md:inline-flex"
-          onClick={() => onCollapse(!isCollapsed)}
-        >
-          {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-        </Button>
-
-        <div className="flex-1 overflow-auto">
-          <nav className="grid items-start p-2 text-sm font-medium lg:p-4">
+        <div className="flex-1 overflow-auto py-2">
+          <nav className="grid items-start p-2 text-sm font-medium lg:px-4">
               {navLinks.map((link) => (
                 <Tooltip key={link.href} delayDuration={0}>
                   <TooltipTrigger asChild>
@@ -74,7 +66,29 @@ export function AdminSidebar({ isCollapsed, onCollapse }: { isCollapsed: boolean
               ))}
           </nav>
         </div>
-        <div className="mt-auto border-t p-4">
+        <div className="mt-auto border-t p-4 space-y-2">
+           <Tooltip delayDuration={0}>
+                <TooltipTrigger asChild>
+                    <Button 
+                        onClick={() => onCollapse(!isCollapsed)} 
+                        variant="ghost" 
+                        className={cn(
+                            "w-full justify-start gap-3",
+                            isCollapsed && "justify-center"
+                        )}>
+                        {isCollapsed ? <ChevronsRight className="h-5 w-5" /> : <ChevronsLeft className="h-5 w-5" />}
+                        {!isCollapsed && <span>Collapse</span>}
+                    </Button>
+                </TooltipTrigger>
+                {isCollapsed && (
+                    <TooltipContent side="right">
+                        <p>Expand</p>
+                    </TooltipContent>
+                )}
+            </Tooltip>
+
+          <Separator />
+
           <AlertDialog open={isLogoutModalOpen} onOpenChange={setIsLogoutModalOpen}>
             <Tooltip delayDuration={0}>
               <TooltipTrigger asChild>
