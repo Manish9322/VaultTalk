@@ -19,7 +19,7 @@ export default function LandingPage() {
           <div className="flex justify-center">
             <Logo />
           </div>
-          <CardTitle className="pt-4">Welcome to WhisperRoom</CardTitle>
+          <CardTitle className="pt-4">Welcome to VaultTalk</CardTitle>
           <CardDescription>The secure and private messaging app.</CardDescription>
         </CardHeader>
         <CardContent>

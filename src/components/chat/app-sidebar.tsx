@@ -130,7 +130,7 @@ export function AppSidebar() {
           )}
 
 
-          {currentUser?.email === 'admin@whisper.com' && (
+          {currentUser?.email === 'admin@vaulttalk.com' && (
             <>
               <h3 className="px-2 py-2 text-xs font-semibold text-muted-foreground mt-4">Admin</h3>
               <Link href="/admin/dashboard" passHref>

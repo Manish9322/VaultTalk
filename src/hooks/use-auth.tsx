@@ -26,8 +26,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     try {
-      const storedUserJson = localStorage.getItem('whisper-user');
-      const storedUsersJson = localStorage.getItem('whisper-users');
+      const storedUserJson = localStorage.getItem('vault-user');
+      const storedUsersJson = localStorage.getItem('vault-users');
       
       if (storedUserJson) {
         setUser(JSON.parse(storedUserJson));
@@ -35,11 +35,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (storedUsersJson) {
         setUsers(JSON.parse(storedUsersJson));
       } else {
-        localStorage.setItem('whisper-users', JSON.stringify(initialUsers));
+        localStorage.setItem('vault-users', JSON.stringify(initialUsers));
       }
     } catch (error) {
       console.error("Failed to parse from localStorage", error);
-      localStorage.setItem('whisper-users', JSON.stringify(initialUsers));
+      localStorage.setItem('vault-users', JSON.stringify(initialUsers));
     } finally {
       setIsLoading(false);
     }
@@ -47,14 +47,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const updateUsers = (updatedUsers: User[]) => {
     setUsers(updatedUsers);
-    localStorage.setItem('whisper-users', JSON.stringify(updatedUsers));
+    localStorage.setItem('vault-users', JSON.stringify(updatedUsers));
     
     // Also update the current user's state if they were modified
     if (user) {
       const updatedCurrentUser = updatedUsers.find(u => u.id === user.id);
       if (updatedCurrentUser) {
         setUser(updatedCurrentUser);
-        localStorage.setItem('whisper-user', JSON.stringify(updatedCurrentUser));
+        localStorage.setItem('vault-user', JSON.stringify(updatedCurrentUser));
       }
     }
   };
@@ -62,7 +62,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const login = (email: string) => {
     const foundUser = users.find(u => u.email === email);
     if (foundUser) {
-      localStorage.setItem('whisper-user', JSON.stringify(foundUser));
+      localStorage.setItem('vault-user', JSON.stringify(foundUser));
       setUser(foundUser);
       if (foundUser.email === 'admin@whisper.com') {
         router.push('/admin/dashboard');
@@ -76,7 +76,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const logout = () => {
     const wasAdmin = user?.email === 'admin@whisper.com';
-    localStorage.removeItem('whisper-user');
+    localStorage.removeItem('vault-user');
     setUser(null);
     // For simplicity, we're not resetting the whole user list on logout
     // In a real app, you might refetch or clear this data
@@ -101,7 +101,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const newUsers = [...users, newUser];
     updateUsers(newUsers);
     
-    localStorage.setItem('whisper-user', JSON.stringify(newUser));
+    localStorage.setItem('vault-user', JSON.stringify(newUser));
     setUser(newUser);
     router.push('/chat');
     return true;

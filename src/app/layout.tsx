@@ -6,7 +6,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 
 
 export const metadata: Metadata = {
-  title: 'WhisperRoom',
+  title: 'VaultTalk',
   description: 'Secure Private Messaging',
 };
 

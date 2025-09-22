@@ -23,7 +23,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!isLoading && user) {
-        if(user.email === 'admin@whisper.com') {
+        if(user.email === 'admin@vaulttalk.com') {
             router.push('/admin/dashboard');
         } else {
             router.push('/chat');
@@ -41,7 +41,7 @@ export default function LoginPage() {
       if (!success) {
         toast({
           title: "Login Failed",
-          description: "Invalid email or password. Try 'alice@whisper.com'.",
+          description: "Invalid email or password. Try 'alice@vaulttalk.com'.",
           variant: "destructive",
         });
         setIsSubmitting(false);
@@ -72,7 +72,7 @@ export default function LoginPage() {
               <Input
                 id="email"
                 type="email"
-                placeholder="alice@whisper.com"
+                placeholder="alice@vaulttalk.com"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -119,7 +119,7 @@ export default function LoginPage() {
         </form>
       </Card>
       <p className="mt-4 text-center text-sm text-muted-foreground">
-        Hint: Use a mock email like 'alice@whisper.com'.
+        Hint: Use a mock email like 'alice@vaulttalk.com'.
       </p>
     </div>
   );

@@ -22,7 +22,7 @@ export default function AdminLoginPage() {
 
   useEffect(() => {
     if (!isLoading && user) {
-        if (user.email === 'admin@whisper.com') {
+        if (user.email === 'admin@vaulttalk.com') {
             router.push('/admin/dashboard');
         } else {
             router.push('/chat');
@@ -34,7 +34,7 @@ export default function AdminLoginPage() {
     e.preventDefault();
     setIsSubmitting(true);
     setTimeout(() => {
-      if (email !== 'admin@whisper.com') {
+      if (email !== 'admin@vaulttalk.com') {
         toast({
           title: "Login Failed",
           description: "Only admins can log in here.",
@@ -80,7 +80,7 @@ export default function AdminLoginPage() {
               <Input
                 id="email"
                 type="email"
-                placeholder="admin@whisper.com"
+                placeholder="admin@vaulttalk.com"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
