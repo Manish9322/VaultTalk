@@ -12,11 +12,14 @@ import { Logo } from "@/components/logo";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
 
-export default function LoginPage() {
-  const { login, user, isLoading } = useAuth();
+export default function RegisterPage() {
+  const { register, user, isLoading } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -27,13 +30,21 @@ export default function LoginPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (password !== confirmPassword) {
+      toast({
+        title: "Registration Failed",
+        description: "Passwords do not match.",
+        variant: "destructive",
+      });
+      return;
+    }
     setIsSubmitting(true);
     setTimeout(() => {
-      const success = login(email);
+      const success = register({name, email});
       if (!success) {
         toast({
-          title: "Login Failed",
-          description: "No user found with that email. Try 'alice@whisper.com'.",
+          title: "Registration Failed",
+          description: "A user with that email already exists.",
           variant: "destructive",
         });
         setIsSubmitting(false);
@@ -54,37 +65,65 @@ export default function LoginPage() {
       <Card className="w-full max-w-sm">
         <CardHeader className="items-center text-center">
           <Logo />
-          <CardTitle className="pt-4">Welcome Back</CardTitle>
-          <CardDescription>Enter your email to sign in to your account</CardDescription>
+          <CardTitle className="pt-4">Create an Account</CardTitle>
+          <CardDescription>Enter your details to create a new account</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                type="text"
+                placeholder="John Doe"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="alice@whisper.com"
+                placeholder="john.doe@email.com"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirm-password">Confirm Password</Label>
+              <Input
+                id="confirm-password"
+                type="password"
+                required
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
               />
             </div>
           </CardContent>
           <CardFooter className="flex-col gap-4">
             <Button type="submit" className="w-full" disabled={isSubmitting}>
               {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Sign In
+              Create Account
             </Button>
             <p className="text-sm text-muted-foreground">
-                Don't have an account? <Link href="/register" className="text-primary hover:underline">Sign Up</Link>
+                Already have an account? <Link href="/" className="text-primary hover:underline">Sign In</Link>
             </p>
           </CardFooter>
         </form>
       </Card>
-      <p className="mt-4 text-center text-sm text-muted-foreground">
-        Hint: Use a mock email like 'alice@whisper.com' or 'admin@whisper.com'.
-      </p>
     </div>
   );
 }

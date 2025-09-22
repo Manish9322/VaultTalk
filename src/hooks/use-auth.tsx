@@ -8,6 +8,7 @@ interface AuthContextType {
   user: User | null;
   login: (email: string) => boolean;
   logout: () => void;
+  register: (details: { name: string; email: string }) => boolean;
   isLoading: boolean;
 }
 
@@ -48,8 +49,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     router.push('/');
   };
 
+  const register = (details: { name: string; email: string }) => {
+    const existingUser = users.find(u => u.email === details.email);
+    if (existingUser) {
+      return false; // User already exists
+    }
+    const newUser: User = {
+      id: `${users.length + 1}`,
+      name: details.name,
+      email: details.email,
+      avatar: `${(users.length % 5) + 1}`, // Cycle through avatars 1-5
+      online: true,
+    };
+    users.push(newUser);
+    localStorage.setItem('whisper-user', JSON.stringify(newUser));
+    setUser(newUser);
+    router.push('/chat');
+    return true;
+  }
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, login, logout, register, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
