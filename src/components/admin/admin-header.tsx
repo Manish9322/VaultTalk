@@ -1,16 +1,16 @@
+
 "use client";
 
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { PanelLeft, LogOut, User as UserIcon } from "lucide-react";
-import { Logo } from "@/components/logo";
 import { useAuth } from "@/hooks/use-auth";
 import { AdminSidebar } from "./admin-sidebar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 
-export function AdminHeader() {
+export function AdminHeader({ onCollapse }: { onCollapse: (collapsed: boolean) => void }) {
     const { user, logout } = useAuth();
     
     const getAvatarUrl = (avatarId: string) => {
@@ -28,7 +28,7 @@ export function AdminHeader() {
                         </Button>
                     </SheetTrigger>
                     <SheetContent side="left" className="p-0 sm:max-w-xs">
-                        <AdminSidebar />
+                        <AdminSidebar isCollapsed={false} onCollapse={onCollapse} />
                     </SheetContent>
                 </Sheet>
             </div>
