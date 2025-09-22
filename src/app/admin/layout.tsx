@@ -16,16 +16,16 @@ export default function AdminLayout({
   return (
       <div 
         className={cn(
-          "grid h-screen w-full overflow-hidden",
+          "grid h-screen w-full",
           isSidebarCollapsed ? "md:grid-cols-[80px_1fr]" : "md:grid-cols-[280px_1fr]"
         )}
       >
         <div className="hidden border-r bg-muted/40 md:block">
           <AdminSidebar isCollapsed={isSidebarCollapsed} onCollapse={setIsSidebarCollapsed} />
         </div>
-        <div className="flex flex-col">
+        <div className="flex flex-col overflow-auto">
           <AdminHeader onCollapse={setIsSidebarCollapsed} />
-          <main className="flex flex-1 flex-col overflow-auto bg-muted/40">
+          <main className="flex flex-1 flex-col bg-muted/40">
             {children}
           </main>
         </div>
