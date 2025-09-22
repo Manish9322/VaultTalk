@@ -37,16 +37,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (foundUser) {
       localStorage.setItem('whisper-user', JSON.stringify(foundUser));
       setUser(foundUser);
-      router.push('/chat');
+      if (foundUser.email === 'admin@whisper.com') {
+        router.push('/admin/dashboard');
+      } else {
+        router.push('/chat');
+      }
       return true;
     }
     return false;
   };
 
   const logout = () => {
+    const wasAdmin = user?.email === 'admin@whisper.com';
     localStorage.removeItem('whisper-user');
     setUser(null);
-    router.push('/');
+    router.push(wasAdmin ? '/admin' : '/');
   };
 
   const register = (details: { name: string; email: string }) => {

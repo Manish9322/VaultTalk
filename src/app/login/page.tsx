@@ -9,9 +9,10 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Logo } from "@/components/logo";
-import { Eye, EyeOff, Loader2, Shield } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
+import Link from "next/link";
 
-export default function AdminLoginPage() {
+export default function LoginPage() {
   const { login, user, isLoading } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
@@ -22,7 +23,7 @@ export default function AdminLoginPage() {
 
   useEffect(() => {
     if (!isLoading && user) {
-        if (user.email === 'admin@whisper.com') {
+        if(user.email === 'admin@whisper.com') {
             router.push('/admin/dashboard');
         } else {
             router.push('/chat');
@@ -34,20 +35,13 @@ export default function AdminLoginPage() {
     e.preventDefault();
     setIsSubmitting(true);
     setTimeout(() => {
-      if (email !== 'admin@whisper.com') {
-        toast({
-          title: "Login Failed",
-          description: "Only admins can log in here.",
-          variant: "destructive",
-        });
-        setIsSubmitting(false);
-        return;
-      }
+      // In a real app, you'd also check the password.
+      // This is simplified for the example.
       const success = login(email);
       if (!success) {
         toast({
           title: "Login Failed",
-          description: "Invalid email or password.",
+          description: "Invalid email or password. Try 'alice@whisper.com'.",
           variant: "destructive",
         });
         setIsSubmitting(false);
@@ -67,11 +61,9 @@ export default function AdminLoginPage() {
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="items-center text-center">
-            <div className="p-3 rounded-full bg-primary/10 border border-primary/20">
-                <Shield className="h-8 w-8 text-primary" />
-            </div>
-          <CardTitle className="pt-4">Admin Access</CardTitle>
-          <CardDescription>Enter your admin credentials to access the dashboard</CardDescription>
+          <Logo />
+          <CardTitle className="pt-4">Welcome Back</CardTitle>
+          <CardDescription>Enter your credentials to sign in to your account</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
@@ -80,7 +72,7 @@ export default function AdminLoginPage() {
               <Input
                 id="email"
                 type="email"
-                placeholder="admin@whisper.com"
+                placeholder="alice@whisper.com"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -120,9 +112,15 @@ export default function AdminLoginPage() {
               {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Sign In
             </Button>
+            <p className="text-sm text-muted-foreground">
+                Don't have an account? <Link href="/register" className="text-primary hover:underline">Sign Up</Link>
+            </p>
           </CardFooter>
         </form>
       </Card>
+      <p className="mt-4 text-center text-sm text-muted-foreground">
+        Hint: Use a mock email like 'alice@whisper.com'.
+      </p>
     </div>
   );
 }
