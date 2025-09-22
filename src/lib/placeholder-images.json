@@ -1,3 +1,4 @@
+
 {
   "placeholderImages": [
     {
@@ -29,6 +30,36 @@
       "description": "Avatar for Eve",
       "imageUrl": "https://picsum.photos/seed/5/100/100",
       "imageHint": "person thinking"
+    },
+    {
+      "id": "6",
+      "description": "Avatar for Frank",
+      "imageUrl": "https://picsum.photos/seed/6/100/100",
+      "imageHint": "man smiling"
+    },
+    {
+      "id": "7",
+      "description": "Avatar for Grace",
+      "imageUrl": "https://picsum.photos/seed/7/100/100",
+      "imageHint": "woman professional"
+    },
+    {
+      "id": "8",
+      "description": "Avatar for Henry",
+      "imageUrl": "https://picsum.photos/seed/8/100/100",
+      "imageHint": "man glasses"
+    },
+    {
+      "id": "9",
+      "description": "Avatar for Ivy",
+      "imageUrl": "https://picsum.photos/seed/9/100/100",
+      "imageHint": "woman nature"
+    },
+    {
+      "id": "10",
+      "description": "Avatar for Jack",
+      "imageUrl": "https://picsum.photos/seed/10/100/100",
+      "imageHint": "man casual"
     },
     {
       "id": "99",

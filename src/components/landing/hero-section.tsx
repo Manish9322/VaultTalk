@@ -4,14 +4,32 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import Image from "next/image";
+import { Marquee } from "@/components/landing/marquee";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { users } from "@/lib/data";
+
+const stats = [
+    { value: "1,200+", label: "Active Users" },
+    { value: "2M+", label: "Encrypted Messages" },
+    { value: "99.9%", label: "Uptime SLA" },
+];
+
+const features = ["End-to-End Encryption", "Team Collaboration", "Admin Oversight", "File Sharing", "SSO Integration"];
 
 export function HeroSection() {
-    
-  const getImageUrl = (id: string) => {
-    return PlaceHolderImages.find(img => img.id === id)?.imageUrl;
-  }
+
+  const getAvatarUrl = (avatarId: string) => {
+    const img = PlaceHolderImages.find(img => img.id === avatarId);
+    return img ? img.imageUrl : `https://picsum.photos/seed/${avatarId}/100/100`;
+  };
+
+  const avatars = users.slice(0, 10).map(user => ({
+    id: user.id,
+    src: getAvatarUrl(user.avatar),
+    fallback: user.name.charAt(0),
+  }));
 
   return (
     <div
@@ -85,31 +103,42 @@ export function HeroSection() {
             <Link href="/about">Learn More</Link>
           </Button>
         </motion.div>
+        
         <motion.div
-          initial={{
-            opacity: 0,
-            y: 10,
-          }}
-          animate={{
-            opacity: 1,
-            y: 0,
-          }}
-          transition={{
-            duration: 0.3,
-            delay: 1.2,
-          }}
-          className="relative z-10 mt-20 rounded-3xl border border-neutral-200 bg-neutral-100 p-4 shadow-md dark:border-neutral-800 dark:bg-neutral-900">
-          <div
-            className="w-full overflow-hidden rounded-xl border border-gray-300 dark:border-gray-700">
-            <Image
-              src={getImageUrl("hero-image") || "https://picsum.photos/seed/110/1280/720"}
-              alt="Landing page preview"
-              className="aspect-[16/9] h-auto w-full object-cover"
-              height={720}
-              width={1280} 
-              data-ai-hint="dashboard application"/>
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 1.2 }}
+          className="relative z-10 mt-20"
+        >
+          <div className="flex justify-center items-center gap-8 md:gap-16 mb-8">
+            {stats.map((stat, index) => (
+              <div key={index} className="text-center">
+                <p className="text-3xl md:text-4xl font-bold">{stat.value}</p>
+                <p className="text-sm text-muted-foreground">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex justify-center flex-wrap gap-2 mb-12">
+            {features.map((feature, index) => (
+                <Badge key={index} variant="secondary">{feature}</Badge>
+            ))}
+          </div>
+          
+          <div className="relative [mask-image:linear-gradient(to_right,transparent,white_10%,white_90%,transparent)]">
+            <Marquee>
+              {avatars.map((avatar, index) => (
+                <div key={`marquee-avatar-${index}`} className="w-16 h-16 mx-3">
+                  <Avatar className="w-full h-full">
+                    <AvatarImage src={avatar.src} />
+                    <AvatarFallback>{avatar.fallback}</AvatarFallback>
+                  </Avatar>
+                </div>
+              ))}
+            </Marquee>
           </div>
         </motion.div>
+
       </div>
     </div>
   );
