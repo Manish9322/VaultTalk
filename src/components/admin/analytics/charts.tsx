@@ -206,7 +206,7 @@ export function EngagementRateChart() {
             <CardHeader>
                 <CardTitle>Engagement Rate (DAU/MAU)</CardTitle>
                 <CardDescription>User stickiness over the last 6 months.</CardDescription>
-            </CardHeader>
+            </Header>
             <CardContent>
                 <ChartContainer config={engagementRateChartConfig} className="h-[250px] w-full">
                     <AreaChart data={data} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
