@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 export function ProtectedRoute({ children, adminOnly = false }: { children: React.ReactNode, adminOnly?: boolean }) {
   const { user, isLoading } = useAuth();
   const router = useRouter();
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     if (isLoading) return;
@@ -19,27 +19,26 @@ export function ProtectedRoute({ children, adminOnly = false }: { children: Reac
       // In a real app, you'd verify the token with a backend.
       // Here, we just check for its presence.
       if (token) {
-        setIsAdminAuthenticated(true);
+        setIsAuthenticated(true);
       } else {
         router.push('/admin');
-        return;
       }
     } else {
-        if (!user) {
+        if (user) {
+            setIsAuthenticated(true);
+        } else {
             router.push('/login');
-            return;
         }
     }
   }, [isLoading, user, router, adminOnly]);
 
-  if (isLoading || (!user && !adminOnly) || (adminOnly && !isAdminAuthenticated)) {
+  if (isLoading || !isAuthenticated) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
       </div>
     );
   }
-
 
   return <>{children}</>;
 }

@@ -12,23 +12,23 @@ import { Logo } from "@/components/logo";
 import { Eye, EyeOff, Loader2, Shield } from "lucide-react";
 
 export default function AdminLoginPage() {
-  const { login, user, isLoading } = useAuth();
+  const { login } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   useEffect(() => {
-    if (!isLoading && user) {
-        if (user.email === 'admin@vaulttalk.com') {
-            router.push('/admin/dashboard');
-        } else {
-            router.push('/chat');
-        }
+    const token = localStorage.getItem('vault-admin-token');
+    if (token) {
+        router.push('/admin/dashboard');
+    } else {
+        setIsCheckingAuth(false);
     }
-  }, [user, isLoading, router]);
+  }, [router]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,7 +43,8 @@ export default function AdminLoginPage() {
         setIsSubmitting(false);
         return;
       }
-      const success = login(email);
+      // This simplified login now also handles setting the admin token
+      const success = login(email); 
       if (!success) {
         toast({
           title: "Login Failed",
@@ -52,10 +53,11 @@ export default function AdminLoginPage() {
         });
         setIsSubmitting(false);
       }
+      // On success, the login function (and its useEffect) will trigger redirect
     }, 1000);
   };
 
-  if (isLoading || (!isLoading && user)) {
+  if (isCheckingAuth) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
