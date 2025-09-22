@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -13,11 +14,23 @@ import { ScrollArea } from "../ui/scroll-area";
 import { Input } from "../ui/input";
 import { useState, useMemo } from "react";
 import { User, ConnectionRequest } from "@/lib/data";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export function AppSidebar() {
   const { user: currentUser, users, logout } = useAuth();
   const pathname = usePathname();
   const [searchQuery, setSearchQuery] = useState("");
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   const getAvatarUrl = (avatarId: string) => {
     return PlaceHolderImages.find(img => img.id === avatarId)?.imageUrl;
@@ -144,10 +157,26 @@ export function AppSidebar() {
             <p className="font-semibold">{currentUser?.name}</p>
             <p className="text-sm text-muted-foreground truncate">{currentUser?.email}</p>
           </div>
-          <Button variant="ghost" size="icon" onClick={logout} className="shrink-0">
-            <LogOut className="h-5 w-5" />
-            <span className="sr-only">Log out</span>
-          </Button>
+          <AlertDialog open={isLogoutModalOpen} onOpenChange={setIsLogoutModalOpen}>
+            <AlertDialogTrigger asChild>
+              <Button variant="ghost" size="icon" className="shrink-0">
+                <LogOut className="h-5 w-5" />
+                <span className="sr-only">Log out</span>
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure you want to log out?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  You will be returned to the login screen.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={logout}>Log Out</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
     </div>
