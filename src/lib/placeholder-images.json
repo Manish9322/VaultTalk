@@ -53,6 +53,12 @@
       "description": "Avatar for General Group",
       "imageUrl": "https://picsum.photos/seed/103/100/100",
       "imageHint": "people talking"
+    },
+    {
+      "id": "hero-image",
+      "description": "Hero section preview image",
+      "imageUrl": "https://picsum.photos/seed/110/1280/720",
+      "imageHint": "dashboard application"
     }
   ]
 }

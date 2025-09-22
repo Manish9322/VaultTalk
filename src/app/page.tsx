@@ -1,11 +1,11 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
-import { ArrowRight, ShieldCheck, Users, LayoutDashboard, Star, DoorOpen, UserRoundPlus, Shield } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Users, LayoutDashboard, Star } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { HeroSection } from '@/components/landing/hero-section';
 
 const features = [
   {
@@ -36,89 +36,8 @@ export default function LandingPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-14 items-center">
-          <div className="mr-4 flex">
-            <Logo />
-          </div>
-          <div className="flex flex-1 items-center justify-end space-x-2">
-            <nav className="flex items-center gap-4">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button asChild variant="ghost" size="icon">
-                      <Link href="/login">
-                        <DoorOpen />
-                        <span className="sr-only">Login</span>
-                      </Link>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Login</p>
-                  </TooltipContent>
-                </Tooltip>
-
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button asChild size="icon">
-                      <Link href="/register">
-                        <UserRoundPlus />
-                        <span className="sr-only">Get Started</span>
-                      </Link>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Get Started</p>
-                  </TooltipContent>
-                </Tooltip>
-                
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button asChild variant="outline" size="icon">
-                      <Link href="/admin">
-                        <Shield />
-                        <span className="sr-only">Admin</span>
-                      </Link>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Admin</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </nav>
-          </div>
-        </div>
-      </header>
       <main className="flex-1">
-        {/* Hero Section */}
-        <section className="relative py-24 md:py-32 lg:py-40">
-            <div
-                className="absolute inset-0 -z-10 bg-muted/20"
-                style={{
-                    backgroundImage: 'radial-gradient(circle at top left, hsl(var(--primary) / 0.1), transparent 30%), radial-gradient(circle at bottom right, hsl(var(--accent) / 0.1), transparent 30%)',
-                }}
-            ></div>
-            <div className="container text-center">
-              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
-                Secure Communication for Modern Teams
-              </h1>
-              <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground md:text-xl">
-                VaultTalk provides an encrypted, private, and efficient platform for your
-                organization's internal communication needs.
-              </p>
-              <div className="mt-8 flex justify-center gap-4">
-                <Button size="lg" asChild>
-                  <Link href="/register">
-                    Get Started Free <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-                <Button size="lg" variant="outline" asChild>
-                  <Link href="/about">Learn More</Link>
-                </Button>
-              </div>
-            </div>
-        </section>
+        <HeroSection />
 
         {/* Features Section */}
         <section id="features" className="bg-muted/40 py-20">
