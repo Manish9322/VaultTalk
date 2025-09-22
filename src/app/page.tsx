@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
 import { ArrowRight, ShieldCheck, Users, LayoutDashboard, Star, DoorOpen, UserRoundPlus, Shield } from 'lucide-react';
@@ -92,24 +93,36 @@ export default function LandingPage() {
       </header>
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="py-20 text-center">
-          <div className="container">
-            <h1 className="text-4xl font-bold tracking-tight lg:text-6xl">
-              Secure Communication for Modern Teams
-            </h1>
-            <p className="mt-6 text-lg text-muted-foreground md:px-20">
-              VaultTalk provides an encrypted, private, and efficient platform for your
-              organization's internal communication needs.
-            </p>
-            <div className="mt-8 flex justify-center gap-4">
-              <Button size="lg" asChild>
-                <Link href="/register">
-                  Get Started Free <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-              <Button size="lg" variant="outline" asChild>
-                <Link href="/about">Learn More</Link>
-              </Button>
+        <section className="py-20">
+          <div className="container grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
+            <div className="text-center lg:text-left">
+              <h1 className="text-4xl font-bold tracking-tight lg:text-6xl">
+                Secure Communication for Modern Teams
+              </h1>
+              <p className="mt-6 text-lg text-muted-foreground">
+                VaultTalk provides an encrypted, private, and efficient platform for your
+                organization's internal communication needs.
+              </p>
+              <div className="mt-8 flex justify-center gap-4 lg:justify-start">
+                <Button size="lg" asChild>
+                  <Link href="/register">
+                    Get Started Free <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button size="lg" variant="outline" asChild>
+                  <Link href="/about">Learn More</Link>
+                </Button>
+              </div>
+            </div>
+            <div className="flex items-center justify-center">
+              <Image
+                src="https://picsum.photos/seed/hero/600/400"
+                alt="VaultTalk in action"
+                width={600}
+                height={400}
+                className="rounded-lg shadow-2xl"
+                data-ai-hint="communication collaboration"
+              />
             </div>
           </div>
         </section>
