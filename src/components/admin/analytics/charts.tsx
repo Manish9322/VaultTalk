@@ -8,9 +8,12 @@ import {
   ChartLegend,
   ChartLegendContent,
 } from "@/components/ui/chart"
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Line, LineChart, Pie, PieChart, Cell } from "recharts"
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Line, LineChart, Pie, PieChart, Cell, Area, AreaChart } from "recharts"
 import { ChartConfig } from "@/components/ui/chart"
 import { useMemo } from "react"
+import { users } from "@/lib/data"
+import { PlaceHolderImages } from "@/lib/placeholder-images"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 // Mock data generation
 const generateUserGrowthData = () => {
@@ -41,6 +44,35 @@ const generateMessageVolumeData = () => {
     return data;
 };
 
+const generateHourlyMessageData = () => {
+  const data = [];
+  for (let i = 0; i < 24; i++) {
+      const hour = i.toString().padStart(2, '0') + ':00';
+      data.push({
+          hour,
+          messages: Math.floor(Math.random() * 1000) + (i > 8 && i < 22 ? 200 : 0),
+      });
+  }
+  return data;
+};
+
+const generateEngagementRateData = () => {
+    const data = [];
+    for (let i = 6; i >= 0; i--) {
+        const date = new Date();
+        date.setMonth(date.getMonth() - i);
+        const mau = 1000 + i * 50 + Math.floor(Math.random() * 100);
+        const dau = Math.floor(mau * (Math.random() * 0.2 + 0.35)); // 35-55% of MAU
+        data.push({
+            month: date.toLocaleString('default', { month: 'short' }),
+            engagement: Math.round((dau / mau) * 100),
+        });
+    }
+    return data;
+};
+
+const topUsersData = users.slice(0,5).map(u => ({...u, messages: Math.floor(Math.random() * 500) + 100})).sort((a,b) => b.messages - a.messages);
+
 const activityBreakdownData = [
     { name: 'User', value: 400, fill: "hsl(var(--primary))" },
     { name: 'System', value: 300, fill: "hsl(var(--accent))" },
@@ -68,7 +100,21 @@ const activityBreakdownChartConfig = {
     Admin: { label: "Admin", color: "hsl(var(--secondary))" },
     Messaging: { label: "Messaging", color: "hsl(var(--muted-foreground))" },
   } satisfies ChartConfig;
-  
+
+const engagementRateChartConfig = {
+    engagement: {
+        label: "Engagement Rate",
+        color: "hsl(var(--primary))",
+    },
+} satisfies ChartConfig
+
+const hourlyMessageVolumeConfig = {
+    messages: {
+        label: "Messages",
+        color: "hsl(var(--primary))",
+    },
+} satisfies ChartConfig
+
 
 export function UserGrowthChart() {
     const data = useMemo(() => generateUserGrowthData(), []);
@@ -127,16 +173,16 @@ export function MessageVolumeChart() {
 
 export function ActivityBreakdownChart() {
     return (
-        <Card>
+        <Card className="h-full">
             <CardHeader>
                 <CardTitle>Activity Breakdown</CardTitle>
                 <CardDescription>Distribution of different activity types.</CardDescription>
             </CardHeader>
             <CardContent>
-                <ChartContainer config={activityBreakdownChartConfig} className="h-[350px] w-full">
+                <ChartContainer config={activityBreakdownChartConfig} className="h-[250px] w-full">
                     <PieChart>
                         <ChartTooltip content={<ChartTooltipContent nameKey="name" hideLabel />} />
-                        <Pie data={activityBreakdownData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={120} labelLine={false}>
+                        <Pie data={activityBreakdownData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={90} labelLine={false}>
                             {activityBreakdownData.map((entry, index) => (
                                 <Cell key={`cell-${index}`} fill={entry.fill} />
                             ))}
@@ -151,4 +197,92 @@ export function ActivityBreakdownChart() {
             </CardContent>
         </Card>
     )
+}
+
+export function EngagementRateChart() {
+    const data = useMemo(() => generateEngagementRateData(), []);
+    return (
+        <Card className="h-full">
+            <CardHeader>
+                <CardTitle>Engagement Rate (DAU/MAU)</CardTitle>
+                <CardDescription>User stickiness over the last 6 months.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <ChartContainer config={engagementRateChartConfig} className="h-[250px] w-full">
+                    <AreaChart data={data} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+                        <CartesianGrid vertical={false} />
+                        <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} fontSize={12} />
+                        <YAxis tickFormatter={(value) => `${value}%`} tickLine={false} axisLine={false} tickMargin={8} fontSize={12} />
+                        <ChartTooltip content={<ChartTooltipContent indicator="dot" formatter={(value) => `${value}%`} />} />
+                        <Area
+                            dataKey="engagement"
+                            type="monotone"
+                            fill="var(--color-engagement)"
+                            stroke="var(--color-engagement)"
+                        />
+                    </AreaChart>
+                </ChartContainer>
+            </CardContent>
+        </Card>
+    );
+}
+
+export function TopUsersList() {
+    const getAvatarUrl = (avatarId: string) => {
+        return PlaceHolderImages.find(img => img.id === avatarId)?.imageUrl;
+    }
+
+    return (
+        <Card className="h-full">
+            <CardHeader>
+                <CardTitle>Top Active Users</CardTitle>
+                <CardDescription>Users with the highest message count.</CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-4">
+                {topUsersData.map((user) => (
+                    <div key={user.id} className="flex items-center gap-4">
+                        <Avatar className="h-9 w-9">
+                            <AvatarImage src={getAvatarUrl(user.avatar)} alt="Avatar" />
+                            <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <div className="grid gap-1">
+                            <p className="text-sm font-medium leading-none">{user.name}</p>
+                            <p className="text-sm text-muted-foreground">{user.email}</p>
+                        </div>
+                        <div className="ml-auto font-medium">{user.messages} msgs</div>
+                    </div>
+                ))}
+            </CardContent>
+        </Card>
+    );
+}
+
+export function HourlyMessageVolumeChart() {
+    const data = useMemo(() => generateHourlyMessageData(), []);
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Hourly Message Volume</CardTitle>
+                <CardDescription>Message activity by hour of the day (UTC).</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <ChartContainer config={hourlyMessageVolumeConfig} className="h-[300px] w-full">
+                    <BarChart data={data} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+                        <CartesianGrid vertical={false} />
+                        <XAxis 
+                            dataKey="hour" 
+                            tickLine={false} 
+                            axisLine={false} 
+                            tickMargin={8} 
+                            fontSize={12}
+                            interval={2} 
+                        />
+                        <YAxis tickLine={false} axisLine={false} tickMargin={8} fontSize={12} />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Bar dataKey="messages" fill="var(--color-messages)" radius={4} />
+                    </BarChart>
+                </ChartContainer>
+            </CardContent>
+        </Card>
+    );
 }
