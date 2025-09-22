@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
-import { ArrowRight, ShieldCheck, Users, LayoutDashboard, Star, LogIn, UserPlus } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Users, LayoutDashboard, Star, DoorOpen, UserRoundPlus, Shield } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
@@ -42,13 +42,13 @@ export default function LandingPage() {
             <Logo />
           </div>
           <div className="flex flex-1 items-center justify-end space-x-2">
-            <nav className="flex items-center gap-2">
+            <nav className="flex items-center gap-4">
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button asChild variant="ghost" size="icon">
                       <Link href="/login">
-                        <LogIn />
+                        <DoorOpen />
                         <span className="sr-only">Login</span>
                       </Link>
                     </Button>
@@ -62,7 +62,7 @@ export default function LandingPage() {
                   <TooltipTrigger asChild>
                     <Button asChild size="icon">
                       <Link href="/register">
-                        <UserPlus />
+                        <UserRoundPlus />
                         <span className="sr-only">Get Started</span>
                       </Link>
                     </Button>
@@ -76,7 +76,7 @@ export default function LandingPage() {
                   <TooltipTrigger asChild>
                     <Button asChild variant="outline" size="icon">
                       <Link href="/admin">
-                        <LayoutDashboard />
+                        <Shield />
                         <span className="sr-only">Admin</span>
                       </Link>
                     </Button>
