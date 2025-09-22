@@ -2,7 +2,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
@@ -16,8 +15,7 @@ export function HeroSection() {
 
   return (
     <div
-      className="relative mx-auto my-10 flex max-w-7xl flex-col items-center justify-center">
-      <Navbar />
+      className="relative mx-auto flex max-w-7xl flex-col items-center justify-center">
       <div
         className="absolute inset-y-0 left-0 h-full w-px bg-neutral-200/80 dark:bg-neutral-800/80">
         <div
@@ -116,17 +114,3 @@ export function HeroSection() {
     </div>
   );
 }
-
-const Navbar = () => {
-  return (
-    <nav
-      className="flex w-full items-center justify-between border-t border-b border-neutral-200 px-4 py-4 dark:border-neutral-800">
-      <div className="flex items-center gap-2">
-        <Logo />
-      </div>
-      <Button asChild variant="secondary">
-          <Link href="/login">Login</Link>
-      </Button>
-    </nav>
-  );
-};

@@ -1,11 +1,12 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
-import { ArrowRight, ShieldCheck, Users, LayoutDashboard, Star } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Users, LayoutDashboard, Star, DoorOpen, UserRoundPlus, Shield } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { HeroSection } from '@/components/landing/hero-section';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 const features = [
   {
@@ -36,6 +37,61 @@ export default function LandingPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-14 items-center">
+          <div className="mr-4 flex">
+            <Link href="/">
+              <Logo />
+            </Link>
+          </div>
+          <div className="flex flex-1 items-center justify-end space-x-2">
+            <nav className="flex items-center gap-4">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button asChild variant="ghost" size="icon">
+                      <Link href="/login">
+                        <DoorOpen />
+                        <span className="sr-only">Login</span>
+                      </Link>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Login</p>
+                  </TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button asChild size="icon">
+                      <Link href="/register">
+                        <UserRoundPlus />
+                        <span className="sr-only">Get Started</span>
+                      </Link>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Get Started</p>
+                  </TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button asChild variant="outline" size="icon">
+                      <Link href="/admin">
+                        <Shield />
+                        <span className="sr-only">Admin</span>
+                      </Link>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Admin</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </nav>
+          </div>
+        </div>
+      </header>
+
       <main className="flex-1">
         <HeroSection />
 
