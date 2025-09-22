@@ -3,12 +3,13 @@
 
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { PanelLeft, LogOut, User as UserIcon } from "lucide-react";
+import { PanelLeft, LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { AdminSidebar } from "./admin-sidebar";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent } from "../ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { ThemeToggle } from "../theme-toggle";
 
 export function AdminHeader({ onCollapse }: { onCollapse: (collapsed: boolean) => void }) {
     const { user, logout } = useAuth();
@@ -49,6 +50,12 @@ export function AdminHeader({ onCollapse }: { onCollapse: (collapsed: boolean) =
                     <DropdownMenuSeparator />
                     <DropdownMenuItem>Profile</DropdownMenuItem>
                     <DropdownMenuItem>Settings</DropdownMenuItem>
+                     <DropdownMenuSub>
+                        <DropdownMenuSubTrigger>Theme</DropdownMenuSubTrigger>
+                        <DropdownMenuSubContent>
+                           <ThemeToggle />
+                        </DropdownMenuSubContent>
+                    </DropdownMenuSub>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={logout}>
                         <LogOut className="mr-2 h-4 w-4" />

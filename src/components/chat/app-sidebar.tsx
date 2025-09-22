@@ -25,6 +25,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent } from "../ui/dropdown-menu";
+import { ThemeToggle } from "../theme-toggle";
 
 export function AppSidebar() {
   const { user: currentUser, users, logout } = useAuth();
@@ -149,34 +151,51 @@ export function AppSidebar() {
       </ScrollArea>
       <div className="mt-auto border-t p-4">
         <div className="flex items-center gap-3">
-          <Avatar className="h-10 w-10">
-            <AvatarImage src={getAvatarUrl(currentUser?.avatar || '')} alt={currentUser?.name} />
-            <AvatarFallback>{currentUser?.name?.charAt(0)}</AvatarFallback>
-          </Avatar>
-          <div className="flex-1 truncate">
-            <p className="font-semibold">{currentUser?.name}</p>
-            <p className="text-sm text-muted-foreground truncate">{currentUser?.email}</p>
-          </div>
-          <AlertDialog open={isLogoutModalOpen} onOpenChange={setIsLogoutModalOpen}>
-            <AlertDialogTrigger asChild>
-              <Button variant="ghost" size="icon" className="shrink-0">
-                <LogOut className="h-5 w-5" />
-                <span className="sr-only">Log out</span>
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you sure you want to log out?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  You will be returned to the login screen.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={logout}>Log Out</AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="flex items-center gap-3 w-full justify-start p-0 h-auto">
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src={getAvatarUrl(currentUser?.avatar || '')} alt={currentUser?.name} />
+                    <AvatarFallback>{currentUser?.name?.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 truncate text-left">
+                    <p className="font-semibold">{currentUser?.name}</p>
+                    <p className="text-sm text-muted-foreground truncate">{currentUser?.email}</p>
+                  </div>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="mb-2 w-[250px]">
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuSub>
+                      <DropdownMenuSubTrigger>Theme</DropdownMenuSubTrigger>
+                      <DropdownMenuSubContent>
+                          <ThemeToggle />
+                      </DropdownMenuSubContent>
+                  </DropdownMenuSub>
+                  <DropdownMenuSeparator />
+                  <AlertDialog open={isLogoutModalOpen} onOpenChange={setIsLogoutModalOpen}>
+                    <AlertDialogTrigger asChild>
+                      <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                          <LogOut className="mr-2 h-4 w-4" />
+                          <span>Log out</span>
+                      </DropdownMenuItem>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Are you sure you want to log out?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          You will be returned to the login screen.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={logout}>Log Out</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+              </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </div>
