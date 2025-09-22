@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,7 @@ interface ConnectionRequestActionsProps {
 }
 
 export function ConnectionRequestActions({ otherUserId, status }: ConnectionRequestActionsProps) {
-  const { sendConnectionRequest, acceptConnectionRequest, declineConnectionRequest } = useConnections();
+  const { sendConnectionRequest, acceptConnectionRequest, declineConnectionRequest, withdrawConnectionRequest } = useConnections();
 
   if (status === "pending-incoming") {
     return (
@@ -37,8 +38,11 @@ export function ConnectionRequestActions({ otherUserId, status }: ConnectionRequ
 
   if (status === "pending-outgoing") {
     return (
-        <div className="p-4 text-center text-sm text-muted-foreground">
-            Connection request sent. Waiting for a response.
+        <div className="p-4 text-center space-y-4">
+            <p className="text-sm text-muted-foreground">Connection request sent.</p>
+            <Button variant="secondary" onClick={() => withdrawConnectionRequest(otherUserId)}>
+                Withdraw Request
+            </Button>
         </div>
     );
   }

@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useAuth } from "./use-auth";
@@ -20,22 +21,34 @@ export function useConnections() {
     // Update target user's requests
     const targetUser = users.find(u => u.id === targetUserId);
     if (targetUser) {
-      const existingRequest = targetUser.connectionRequests?.find(r => r.userId === currentUser.id);
-      if (!existingRequest) {
-        const newRequests = [...(targetUser.connectionRequests || []), { userId: currentUser.id, status: 'pending-incoming' as const }];
+        const newRequests = [...(targetUser.connectionRequests?.filter(r => r.userId !== currentUser.id) || []), { userId: currentUser.id, status: 'pending-incoming' as const }];
         updateUser(targetUserId, { connectionRequests: newRequests });
-      }
     }
 
     // Update current user's requests
-    const existingRequest = currentUser.connectionRequests?.find(r => r.userId === targetUserId);
-    if (!existingRequest) {
-        const newRequests = [...(currentUser.connectionRequests || []), { userId: targetUserId, status: 'pending-outgoing' as const }];
-        updateUser(currentUser.id, { connectionRequests: newRequests });
-    }
+    const newRequests = [...(currentUser.connectionRequests?.filter(r => r.userId !== targetUserId) || []), { userId: targetUserId, status: 'pending-outgoing' as const }];
+    updateUser(currentUser.id, { connectionRequests: newRequests });
 
     toast({ title: "Success", description: "Connection request sent." });
   };
+
+  const withdrawConnectionRequest = (targetUserId: string) => {
+    if (!currentUser) return;
+
+    // Update current user: remove the outgoing request
+    const newCurrentUserRequests = currentUser.connectionRequests?.filter(r => r.userId !== targetUserId) || [];
+    updateUser(currentUser.id, { connectionRequests: newCurrentUserRequests });
+
+    // Update target user: remove the incoming request
+    const targetUser = users.find(u => u.id === targetUserId);
+    if (targetUser) {
+        const newTargetUserRequests = targetUser.connectionRequests?.filter(r => r.userId !== currentUser.id) || [];
+        updateUser(targetUserId, { connectionRequests: newTargetUserRequests });
+    }
+
+    toast({ title: "Request Withdrawn", description: "Your connection request has been withdrawn." });
+  };
+
 
   const acceptConnectionRequest = (targetUserId: string) => {
     if (!currentUser) return;
@@ -113,6 +126,7 @@ export function useConnections() {
 
   return {
     sendConnectionRequest,
+    withdrawConnectionRequest,
     acceptConnectionRequest,
     declineConnectionRequest,
     removeConnection,

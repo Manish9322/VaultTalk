@@ -1,11 +1,12 @@
 
+
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import Link from "next/link";
-import { LogOut, Shield, Search, UserCheck, UserPlus, Clock, Users as GroupIcon } from "lucide-react";
+import { LogOut, Shield, Search, UserCheck, UserPlus, Clock, Users as GroupIcon, Users } from "lucide-react";
 import { Logo } from "../logo";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { cn } from "@/lib/utils";
@@ -133,6 +134,19 @@ export function AppSidebar() {
       <ScrollArea className="flex-1">
         <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
           
+          <Link href="/chat/discover" passHref>
+            <Button
+                variant="ghost"
+                className={cn(
+                "w-full justify-start gap-3",
+                pathname.startsWith('/chat/discover') && "bg-accent text-accent-foreground"
+                )}
+            >
+                <Users className="h-5 w-5" />
+                <span>Discover</span>
+            </Button>
+          </Link>
+
           {groups.length > 0 && (
             <>
               <h3 className="flex items-center gap-2 px-2 py-2 text-xs font-semibold text-muted-foreground"><GroupIcon className="h-4 w-4" /> Groups</h3>
