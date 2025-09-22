@@ -1,12 +1,16 @@
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { PlaceHolderImages } from "@/lib/placeholder-images"
-import { users } from "@/lib/data"
+import { users, User } from "@/lib/data"
 
 export function RecentActivities() {
 
-  const getAvatarUrl = (avatarId: string) => {
-    return PlaceHolderImages.find(img => img.id === avatarId)?.imageUrl;
+  const getAvatarUrl = (user: User) => {
+    if (user.avatarType === 'custom') {
+      return user.avatar;
+    }
+    return PlaceHolderImages.find(img => img.id === user.avatar)?.imageUrl;
   }
 
   return (
@@ -19,7 +23,7 @@ export function RecentActivities() {
         {users.slice(0, 5).map((user) => (
           <div key={user.id} className="flex items-center gap-4">
             <Avatar className="hidden h-9 w-9 sm:flex">
-              <AvatarImage src={getAvatarUrl(user.avatar)} alt="Avatar" />
+              <AvatarImage src={getAvatarUrl(user)} alt="Avatar" />
               <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
             </Avatar>
             <div className="grid gap-1">

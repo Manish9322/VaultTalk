@@ -62,9 +62,12 @@ export default function ChatConversationPage() {
     scrollToBottom();
   }, [messages]);
 
-  const getAvatarUrl = (avatarId: string) => {
-    return PlaceHolderImages.find(img => img.id === avatarId)?.imageUrl;
-  }
+  const getAvatarUrl = (user: User) => {
+    if (user.avatarType === 'custom') {
+      return user.avatar;
+    }
+    return PlaceHolderImages.find(img => img.id === user.avatar)?.imageUrl;
+  };
 
   const { isConnection, connectionStatus, isBlocked, isYouBlocking } = useMemo(() => {
     if (!currentUser || !otherUser) {
@@ -125,7 +128,7 @@ export default function ChatConversationPage() {
     <div className="flex flex-col h-full">
       <header className="flex items-center gap-4 p-4 border-b shrink-0">
         <Avatar className="h-10 w-10">
-          <AvatarImage src={getAvatarUrl(otherUser.avatar)} alt={otherUser.name} />
+          <AvatarImage src={getAvatarUrl(otherUser)} alt={otherUser.name} />
           <AvatarFallback>{otherUser.name.charAt(0)}</AvatarFallback>
         </Avatar>
         <div className="flex-1">
@@ -159,7 +162,7 @@ export default function ChatConversationPage() {
                 >
                 {message.senderId !== currentUser?.id && (
                     <Avatar className="h-8 w-8">
-                    <AvatarImage src={getAvatarUrl(otherUser.avatar)} alt={otherUser.name} />
+                    <AvatarImage src={getAvatarUrl(otherUser)} alt={otherUser.name} />
                     <AvatarFallback>{otherUser.name.charAt(0)}</AvatarFallback>
                     </Avatar>
                 )}

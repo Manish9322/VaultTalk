@@ -11,7 +11,7 @@ interface AuthContextType {
   users: User[];
   login: (email: string) => boolean;
   logout: () => void;
-  register: (details: { name: string; email: string }) => boolean;
+  register: (details: { name: string; email: string; avatar: string | null }) => boolean;
   updateUsers: (updatedUsers: User[]) => void;
   isLoading: boolean;
 }
@@ -76,27 +76,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const logout = () => {
-    const wasAdmin = user?.email === 'admin@vaulttalk.com';
     localStorage.removeItem('vault-user');
     setUser(null);
-    router.push(wasAdmin ? '/admin/dashboard' : '/');
+    router.push('/');
   };
 
-  const register = (details: { name: string; email: string }) => {
+  const register = (details: { name: string; email: string, avatar: string | null }) => {
     const existingUser = users.find(u => u.email === details.email);
     if (existingUser) {
       return false; // User already exists
     }
+    
     const newUser: User = {
       id: `${users.length + 1}`,
       name: details.name,
       email: details.email,
-      avatar: `${(users.length % 5) + 1}`,
+      avatar: details.avatar || `${(users.length % 5) + 1}`,
+      avatarType: details.avatar ? 'custom' : 'placeholder',
       online: true,
       connections: [],
       blocked: [],
       connectionRequests: [],
     };
+
     const newUsers = [...users, newUser];
     updateUsers(newUsers);
     

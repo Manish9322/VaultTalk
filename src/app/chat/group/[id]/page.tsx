@@ -65,8 +65,15 @@ export default function GroupChatConversationPage() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+  
+  const getAvatarUrl = (user: User) => {
+    if (user.avatarType === 'custom') {
+      return user.avatar;
+    }
+    return PlaceHolderImages.find(img => img.id === user.avatar)?.imageUrl;
+  };
 
-  const getAvatarUrl = (avatarId: string) => {
+  const getGroupAvatarUrl = (avatarId: string) => {
     return PlaceHolderImages.find(img => img.id === avatarId)?.imageUrl;
   }
   
@@ -106,7 +113,7 @@ export default function GroupChatConversationPage() {
     <div className="flex flex-col h-full">
       <header className="flex items-center gap-4 p-4 border-b shrink-0">
         <Avatar className="h-10 w-10">
-          <AvatarImage src={getAvatarUrl(group.avatar)} alt={group.name} />
+          <AvatarImage src={getGroupAvatarUrl(group.avatar)} alt={group.name} />
           <AvatarFallback>{group.name.charAt(0)}</AvatarFallback>
         </Avatar>
         <div className="flex-1">
@@ -146,7 +153,7 @@ export default function GroupChatConversationPage() {
                         return (
                             <div key={memberId} className="flex items-center gap-4">
                                 <Avatar>
-                                    <AvatarImage src={getAvatarUrl(member.avatar)} />
+                                    <AvatarImage src={getAvatarUrl(member)} />
                                     <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
                                 </Avatar>
                                 <div className="flex-1">
@@ -182,7 +189,7 @@ export default function GroupChatConversationPage() {
                 >
                     {message.senderId !== currentUser?.id && (
                         <Avatar className="h-8 w-8">
-                        <AvatarImage src={getAvatarUrl(sender.avatar)} alt={sender.name} />
+                        <AvatarImage src={getAvatarUrl(sender)} alt={sender.name} />
                         <AvatarFallback>{sender.name.charAt(0)}</AvatarFallback>
                         </Avatar>
                     )}

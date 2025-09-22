@@ -10,13 +10,17 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { ThemeToggle } from "../theme-toggle";
+import type { User } from "@/lib/data";
 
 export function AdminHeader({ onCollapse }: { onCollapse: (collapsed: boolean) => void }) {
     const { user, logout } = useAuth();
     
-    const getAvatarUrl = (avatarId: string) => {
-        return PlaceHolderImages.find(img => img.id === avatarId)?.imageUrl;
-    }
+    const getAvatarUrl = (user: User) => {
+        if (user.avatarType === 'custom') {
+          return user.avatar;
+        }
+        return PlaceHolderImages.find(img => img.id === user.avatar)?.imageUrl;
+    };
 
     return (
         <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4">
@@ -40,7 +44,7 @@ export function AdminHeader({ onCollapse }: { onCollapse: (collapsed: boolean) =
                 <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon" className="rounded-full">
                         <Avatar className="h-8 w-8">
-                            <AvatarImage src={getAvatarUrl(user?.avatar || '')} alt={user?.name} />
+                            {user && <AvatarImage src={getAvatarUrl(user)} alt={user.name} />}
                             <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
                         </Avatar>
                     </Button>

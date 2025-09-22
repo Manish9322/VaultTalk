@@ -13,7 +13,7 @@ import {
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Line, LineChart, Pie, PieChart, Cell, Area, AreaChart } from "recharts"
 import { ChartConfig } from "@/components/ui/chart"
 import { useMemo } from "react"
-import { users } from "@/lib/data"
+import { users, User } from "@/lib/data"
 import { PlaceHolderImages } from "@/lib/placeholder-images"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
@@ -233,8 +233,11 @@ export function EngagementRateChart() {
 }
 
 export function TopUsersList() {
-    const getAvatarUrl = (avatarId: string) => {
-        return PlaceHolderImages.find(img => img.id === avatarId)?.imageUrl;
+    const getAvatarUrl = (user: User) => {
+        if (user.avatarType === 'custom') {
+          return user.avatar;
+        }
+        return PlaceHolderImages.find(img => img.id === user.avatar)?.imageUrl;
     }
 
     return (
@@ -247,7 +250,7 @@ export function TopUsersList() {
                 {topUsersData.map((user) => (
                     <div key={user.id} className="flex items-center gap-4">
                         <Avatar className="h-9 w-9">
-                            <AvatarImage src={getAvatarUrl(user.avatar)} alt="Avatar" />
+                            <AvatarImage src={getAvatarUrl(user)} alt="Avatar" />
                             <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
                         </Avatar>
                         <div className="grid gap-1">
@@ -291,5 +294,3 @@ export function HourlyMessageVolumeChart() {
         </Card>
     );
 }
-
-    

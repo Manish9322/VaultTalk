@@ -35,9 +35,16 @@ export function AppSidebar() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
-  const getAvatarUrl = (avatarId: string) => {
-    return PlaceHolderImages.find(img => img.id === avatarId)?.imageUrl;
+  const getAvatarUrl = (user: User) => {
+    if (user.avatarType === 'custom') {
+      return user.avatar;
+    }
+    return PlaceHolderImages.find(img => img.id === user.avatar)?.imageUrl;
   };
+  
+  const getGroupAvatarUrl = (avatarId: string) => {
+    return PlaceHolderImages.find(img => img.id === avatarId)?.imageUrl;
+  }
 
   const getRequestStatus = (otherUser: User): ConnectionRequest['status'] | undefined => {
     return currentUser?.connectionRequests?.find(r => r.userId === otherUser.id)?.status;
@@ -79,7 +86,7 @@ export function AppSidebar() {
           )}
         >
           <Avatar className="h-8 w-8 relative">
-            <AvatarImage src={getAvatarUrl(user.avatar)} alt={user.name} />
+            <AvatarImage src={getAvatarUrl(user)} alt={user.name} />
             <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
             {user.online && <span className="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full bg-green-500 ring-2 ring-background"></span>}
           </Avatar>
@@ -104,7 +111,7 @@ export function AppSidebar() {
           )}
         >
           <Avatar className="h-8 w-8">
-            <AvatarImage src={getAvatarUrl(group.avatar)} alt={group.name} />
+            <AvatarImage src={getGroupAvatarUrl(group.avatar)} alt={group.name} />
             <AvatarFallback>{group.name.charAt(0)}</AvatarFallback>
           </Avatar>
           <div className="flex-1 text-left truncate">
@@ -201,7 +208,7 @@ export function AppSidebar() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="flex items-center gap-3 w-full justify-start p-0 h-auto">
                   <Avatar className="h-10 w-10">
-                    <AvatarImage src={getAvatarUrl(currentUser?.avatar || '')} alt={currentUser?.name} />
+                    {currentUser && <AvatarImage src={getAvatarUrl(currentUser)} alt={currentUser.name} />}
                     <AvatarFallback>{currentUser?.name?.charAt(0)}</AvatarFallback>
                   </Avatar>
                   <div className="flex-1 truncate text-left">

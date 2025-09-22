@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,7 @@ export default function RegisterPage() {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,6 +32,12 @@ export default function RegisterPage() {
       router.push('/chat');
     }
   }, [user, isLoading, router]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setAvatarFile(e.target.files[0]);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,17 +50,28 @@ export default function RegisterPage() {
       return;
     }
     setIsSubmitting(true);
-    setTimeout(() => {
-      const success = register({name, email});
-      if (!success) {
-        toast({
-          title: "Registration Failed",
-          description: "A user with that email already exists.",
-          variant: "destructive",
-        });
-        setIsSubmitting(false);
-      }
-    }, 1000);
+    
+    const registerWithAvatar = (avatarDataUrl: string | null) => {
+        const success = register({ name, email, avatar: avatarDataUrl });
+        if (!success) {
+            toast({
+            title: "Registration Failed",
+            description: "A user with that email already exists.",
+            variant: "destructive",
+            });
+            setIsSubmitting(false);
+        }
+    }
+
+    if (avatarFile) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            registerWithAvatar(reader.result as string);
+        }
+        reader.readAsDataURL(avatarFile);
+    } else {
+        registerWithAvatar(null);
+    }
   };
 
   if (isLoading || (!isLoading && user)) {
@@ -97,15 +116,26 @@ export default function RegisterPage() {
                 />
               </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="phone">Phone Number</Label>
-              <Input
-                id="phone"
-                type="tel"
-                placeholder="(123) 456-7890"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-              />
+             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                    <Label htmlFor="phone">Phone Number</Label>
+                    <Input
+                        id="phone"
+                        type="tel"
+                        placeholder="(123) 456-7890"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                    />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="avatar">Profile Picture (Optional)</Label>
+                    <Input
+                        id="avatar"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                    />
+                </div>
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-2">

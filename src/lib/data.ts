@@ -1,3 +1,4 @@
+
 export type ConnectionRequest = {
   userId: string;
   status: 'pending-incoming' | 'pending-outgoing' | 'accepted' | 'declined';
@@ -7,6 +8,7 @@ export type User = {
   id: string;
   name: string;
   avatar: string;
+  avatarType?: 'custom' | 'placeholder';
   email: string;
   online?: boolean;
   connections?: string[]; // Array of user IDs
@@ -35,6 +37,7 @@ export const users: User[] = [
     id: '1', 
     name: 'Alice', 
     avatar: '1', 
+    avatarType: 'placeholder',
     email: 'alice@vaulttalk.com', 
     online: true, 
     connections: ['2'], 
@@ -48,6 +51,7 @@ export const users: User[] = [
     id: '2', 
     name: 'Bob', 
     avatar: '2', 
+    avatarType: 'placeholder',
     email: 'bob@vaulttalk.com', 
     online: false, 
     connections: ['1'], 
@@ -60,6 +64,7 @@ export const users: User[] = [
     id: '3', 
     name: 'Charlie', 
     avatar: '3', 
+    avatarType: 'placeholder',
     email: 'charlie@vaulttalk.com', 
     online: true, 
     connections: [], 
@@ -72,6 +77,7 @@ export const users: User[] = [
     id: '4', 
     name: 'Diana', 
     avatar: '4', 
+    avatarType: 'placeholder',
     email: 'diana@vaulttalk.com', 
     online: false, 
     connections: [], 
@@ -82,6 +88,7 @@ export const users: User[] = [
     id: '5', 
     name: 'Eve', 
     avatar: '5', 
+    avatarType: 'placeholder',
     email: 'eve@vaulttalk.com', 
     online: true, 
     connections: [], 
@@ -92,6 +99,7 @@ export const users: User[] = [
     id: 'admin', 
     name: 'Admin', 
     avatar: '99', 
+    avatarType: 'placeholder',
     email: 'admin@vaulttalk.com', 
     online: true, 
     connections: [], 

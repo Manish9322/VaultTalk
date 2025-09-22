@@ -33,8 +33,11 @@ export default function DiscoverPage() {
     );
   }, [otherUsers, searchQuery]);
 
-  const getAvatarUrl = (avatarId: string) => {
-    return PlaceHolderImages.find(img => img.id === avatarId)?.imageUrl;
+  const getAvatarUrl = (user: User) => {
+    if (user.avatarType === 'custom') {
+      return user.avatar;
+    }
+    return PlaceHolderImages.find(img => img.id === user.avatar)?.imageUrl;
   };
 
   const getConnectionStatus = (otherUser: User): 'connected' | 'pending-outgoing' | 'pending-incoming' | 'blocked' | 'declined' | null => {
@@ -89,7 +92,7 @@ export default function DiscoverPage() {
           <Card key={user.id} className="flex flex-col">
             <CardHeader className="flex flex-col items-center text-center">
               <Avatar className="h-20 w-20 mb-4">
-                <AvatarImage src={getAvatarUrl(user.avatar)} alt={user.name} />
+                <AvatarImage src={getAvatarUrl(user)} alt={user.name} />
                 <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
               </Avatar>
               <CardTitle>{user.name}</CardTitle>
