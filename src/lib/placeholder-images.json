@@ -1,3 +1,40 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "1",
+      "description": "Avatar for Alice",
+      "imageUrl": "https://picsum.photos/seed/1/100/100",
+      "imageHint": "woman portrait"
+    },
+    {
+      "id": "2",
+      "description": "Avatar for Bob",
+      "imageUrl": "https://picsum.photos/seed/2/100/100",
+      "imageHint": "man portrait"
+    },
+    {
+      "id": "3",
+      "description": "Avatar for Charlie",
+      "imageUrl": "https://picsum.photos/seed/3/100/100",
+      "imageHint": "person portrait"
+    },
+    {
+      "id": "4",
+      "description": "Avatar for Diana",
+      "imageUrl": "https://picsum.photos/seed/4/100/100",
+      "imageHint": "woman smiling"
+    },
+    {
+      "id": "5",
+      "description": "Avatar for Eve",
+      "imageUrl": "https://picsum.photos/seed/5/100/100",
+      "imageHint": "person thinking"
+    },
+    {
+      "id": "99",
+      "description": "Avatar for Admin",
+      "imageUrl": "https://picsum.photos/seed/99/100/100",
+      "imageHint": "abstract geometric"
+    }
+  ]
 }
