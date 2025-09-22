@@ -14,6 +14,13 @@ export type User = {
   connectionRequests?: ConnectionRequest[];
 };
 
+export type Group = {
+  id: string;
+  name: string;
+  avatar: string;
+  members: string[]; // Array of user IDs
+}
+
 export type Message = {
   id: string;
   senderId: string;
@@ -93,12 +100,26 @@ export const users: User[] = [
   },
 ];
 
+export const groups: Group[] = [
+  { id: 'group1', name: 'Project Phoenix', avatar: '101', members: ['1', '2', '3'] },
+  { id: 'group2', name: 'Marketing Team', avatar: '102', members: ['1', '4', '5'] },
+  { id: 'group3', name: 'General', avatar: '103', members: ['1', '2', '3', '4', '5'] },
+];
+
 export let messages: Message[] = [
+  // Direct Messages
   { id: 'msg1', senderId: '1', receiverId: '2', text: 'Hey Bob, how are you?', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2) },
   { id: 'msg2', senderId: '2', receiverId: '1', text: 'Hey Alice! I am good, thanks. How about you?', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 1.5) },
   { id: 'msg3', senderId: '1', receiverId: '2', text: 'Doing great! Just working on the new project.', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 1) },
   { id: 'msg4', senderId: '2', receiverId: '1', text: 'Awesome! Let me know if you need any help.', timestamp: new Date(Date.now() - 1000 * 60 * 30) },
+  // Group Messages
+  { id: 'g_msg1', senderId: '1', receiverId: 'group1', text: 'Hey team, Project Phoenix meeting at 3 PM today.', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 4) },
+  { id: 'g_msg2', senderId: '2', receiverId: 'group1', text: 'Got it, thanks for the reminder!', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 3.5) },
+  { id: 'g_msg3', senderId: '3', receiverId: 'group1', text: 'Will be there.', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 3) },
+  { id: 'g_msg4', senderId: '4', receiverId: 'group2', text: 'New campaign launch next week, let\'s sync up.', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24) },
+  { id: 'g_msg5', senderId: '1', receiverId: 'group2', text: 'Sure, I will set up a call.', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 23) },
 ];
+
 
 export let activityLog = `
 [2024-08-01 10:00:00] User 'Alice' (ID: 1) logged in.

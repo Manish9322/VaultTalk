@@ -35,6 +35,24 @@
       "description": "Avatar for Admin",
       "imageUrl": "https://picsum.photos/seed/99/100/100",
       "imageHint": "abstract geometric"
+    },
+    {
+      "id": "101",
+      "description": "Avatar for Project Phoenix Group",
+      "imageUrl": "https://picsum.photos/seed/101/100/100",
+      "imageHint": "phoenix bird"
+    },
+    {
+      "id": "102",
+      "description": "Avatar for Marketing Team Group",
+      "imageUrl": "https://picsum.photos/seed/102/100/100",
+      "imageHint": "graph arrows"
+    },
+    {
+      "id": "103",
+      "description": "Avatar for General Group",
+      "imageUrl": "https://picsum.photos/seed/103/100/100",
+      "imageHint": "people talking"
     }
   ]
 }

@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import Link from "next/link";
-import { LogOut, Shield, Search, UserCheck, UserPlus, Clock } from "lucide-react";
+import { LogOut, Shield, Search, UserCheck, UserPlus, Clock, Users as GroupIcon } from "lucide-react";
 import { Logo } from "../logo";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { cn } from "@/lib/utils";
@@ -13,7 +13,7 @@ import { usePathname } from "next/navigation";
 import { ScrollArea } from "../ui/scroll-area";
 import { Input } from "../ui/input";
 import { useState, useMemo } from "react";
-import { User, ConnectionRequest } from "@/lib/data";
+import { User, ConnectionRequest, groups as allGroups, Group } from "@/lib/data";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -42,15 +42,17 @@ export function AppSidebar() {
     return currentUser?.connectionRequests?.find(r => r.userId === otherUser.id)?.status;
   };
 
-  const { connections, pendingRequests, otherUsers } = useMemo(() => {
+  const { connections, pendingRequests, otherUsers, groups } = useMemo(() => {
     const allOtherUsers = users.filter(u => u.id !== currentUser?.id && u.id !== 'admin' && !currentUser?.blocked?.includes(u.id));
 
     const connections = allOtherUsers.filter(u => currentUser?.connections?.includes(u.id));
     const pendingRequests = allOtherUsers.filter(u => getRequestStatus(u)?.startsWith('pending'));
     const otherUsers = allOtherUsers.filter(u => !currentUser?.connections?.includes(u.id) && !getRequestStatus(u)?.startsWith('pending'));
     
+    const userGroups = allGroups.filter(g => g.members.includes(currentUser?.id || ''));
+
     if (!searchQuery) {
-      return { connections, pendingRequests, otherUsers };
+      return { connections, pendingRequests, otherUsers, groups: userGroups };
     }
 
     const lowercasedQuery = searchQuery.toLowerCase();
@@ -58,6 +60,7 @@ export function AppSidebar() {
       connections: connections.filter(u => u.name.toLowerCase().includes(lowercasedQuery)),
       pendingRequests: pendingRequests.filter(u => u.name.toLowerCase().includes(lowercasedQuery)),
       otherUsers: otherUsers.filter(u => u.name.toLowerCase().includes(lowercasedQuery)),
+      groups: userGroups.filter(g => g.name.toLowerCase().includes(lowercasedQuery)),
     };
 
   }, [currentUser, users, searchQuery]);
@@ -88,6 +91,28 @@ export function AppSidebar() {
       </Link>
     );
   };
+  
+  const GroupLink = ({ group }: { group: Group }) => {
+    return (
+      <Link href={`/chat/group/${group.id}`} passHref>
+        <Button
+          variant="ghost"
+          className={cn(
+            "w-full justify-start gap-3 h-12",
+            pathname === `/chat/group/${group.id}` && "bg-accent text-accent-foreground"
+          )}
+        >
+          <Avatar className="h-8 w-8">
+            <AvatarImage src={getAvatarUrl(group.avatar)} alt={group.name} />
+            <AvatarFallback>{group.name.charAt(0)}</AvatarFallback>
+          </Avatar>
+          <div className="flex-1 text-left truncate">
+            <span className="truncate">{group.name}</span>
+          </div>
+        </Button>
+      </Link>
+    );
+  };
 
   return (
     <div className="flex h-full max-h-screen flex-col">
@@ -98,7 +123,7 @@ export function AppSidebar() {
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input 
-            placeholder="Search users..." 
+            placeholder="Search..." 
             className="pl-9"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -108,9 +133,16 @@ export function AppSidebar() {
       <ScrollArea className="flex-1">
         <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
           
+          {groups.length > 0 && (
+            <>
+              <h3 className="flex items-center gap-2 px-2 py-2 text-xs font-semibold text-muted-foreground"><GroupIcon className="h-4 w-4" /> Groups</h3>
+              {groups.map((g) => <GroupLink key={g.id} group={g} />)}
+            </>
+          )}
+
           {connections.length > 0 && (
             <>
-              <h3 className="flex items-center gap-2 px-2 py-2 text-xs font-semibold text-muted-foreground"><UserCheck className="h-4 w-4" /> Connections</h3>
+              <h3 className="flex items-center gap-2 px-2 py-2 mt-4 text-xs font-semibold text-muted-foreground"><UserCheck className="h-4 w-4" /> Connections</h3>
               {connections.map((u) => <UserLink key={u.id} user={u} />)}
             </>
           )}
