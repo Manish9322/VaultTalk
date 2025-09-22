@@ -8,7 +8,7 @@ import { Message, User, groups, users, messages as initialMessages } from "@/lib
 import { useAuth } from "@/hooks/use-auth";
 import { useParams } from "next/navigation";
 import { useEffect, useRef, useState, FormEvent, useMemo } from "react";
-import { SendHorizonal, Ban, Flag, ShieldAlert, MoreVertical } from "lucide-react";
+import { SendHorizonal, Ban, Flag, ShieldAlert, MoreVertical, Users as UsersIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -24,6 +24,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 export default function GroupChatConversationPage() {
@@ -37,6 +45,7 @@ export default function GroupChatConversationPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const scrollViewportRef = useRef<HTMLDivElement>(null);
+  const [isMembersModalOpen, setIsMembersModalOpen] = useState(false);
 
   useEffect(() => {
     if (groupId) {
@@ -104,18 +113,56 @@ export default function GroupChatConversationPage() {
           <h2 className="text-lg font-semibold">{group.name}</h2>
           <p className="text-sm text-muted-foreground">{group.members.length} members</p>
         </div>
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                    <MoreVertical className="h-5 w-5" />
-                    <span className="sr-only">More options</span>
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-                <DropdownMenuItem>View members</DropdownMenuItem>
-                <DropdownMenuItem className="text-destructive">Leave group</DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
+        <Dialog open={isMembersModalOpen} onOpenChange={setIsMembersModalOpen}>
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                        <MoreVertical className="h-5 w-5" />
+                        <span className="sr-only">More options</span>
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                    <DialogTrigger asChild>
+                        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>View members</DropdownMenuItem>
+                    </DialogTrigger>
+                    <DropdownMenuItem className="text-destructive">Leave group</DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+            <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                    <UsersIcon className="h-6 w-6" />
+                    <span>Group Members</span>
+                </DialogTitle>
+                <DialogDescription>
+                    People in the &quot;{group.name}&quot; group.
+                </DialogDescription>
+                </DialogHeader>
+                <ScrollArea className="max-h-[50vh]">
+                    <div className="space-y-4 pr-6">
+                    {group.members.map(memberId => {
+                        const member = getSender(memberId);
+                        if (!member) return null;
+                        return (
+                            <div key={memberId} className="flex items-center gap-4">
+                                <Avatar>
+                                    <AvatarImage src={getAvatarUrl(member.avatar)} />
+                                    <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
+                                </Avatar>
+                                <div className="flex-1">
+                                    <p className="font-semibold">{member.name}</p>
+                                    <p className="text-sm text-muted-foreground">{member.email}</p>
+                                </div>
+                                {member.id === currentUser?.id && (
+                                    <span className="text-xs text-muted-foreground">(You)</span>
+                                )}
+                            </div>
+                        )
+                    })}
+                    </div>
+                </ScrollArea>
+            </DialogContent>
+        </Dialog>
       </header>
       
         <>
