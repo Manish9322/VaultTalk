@@ -1,3 +1,4 @@
+
 "use client";
 
 import { User, users as initialUsers } from '@/lib/data';
@@ -62,9 +63,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const login = (email: string) => {
     const foundUser = users.find(u => u.email === email);
     if (foundUser) {
+      if (foundUser.email === 'admin@vaulttalk.com') {
+        // Handle admin login separately
+        localStorage.setItem('vault-admin-token', 'fake-jwt-for-admin');
+      }
       localStorage.setItem('vault-user', JSON.stringify(foundUser));
       setUser(foundUser);
-      if (foundUser.email === 'admin@whisper.com') {
+      if (foundUser.email === 'admin@vaulttalk.com') {
         router.push('/admin/dashboard');
       } else {
         router.push('/chat');
@@ -75,11 +80,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const logout = () => {
-    const wasAdmin = user?.email === 'admin@whisper.com';
+    const wasAdmin = user?.email === 'admin@vaulttalk.com';
     localStorage.removeItem('vault-user');
+    if (wasAdmin) {
+      localStorage.removeItem('vault-admin-token');
+    }
     setUser(null);
-    // For simplicity, we're not resetting the whole user list on logout
-    // In a real app, you might refetch or clear this data
     router.push(wasAdmin ? '/admin' : '/');
   };
 
