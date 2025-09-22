@@ -20,6 +20,7 @@ export type Message = {
   receiverId: string;
   text: string;
   timestamp: Date;
+  isFlagged?: boolean;
 };
 
 export const users: User[] = [
@@ -92,14 +93,14 @@ export const users: User[] = [
   },
 ];
 
-export const messages: Message[] = [
+export let messages: Message[] = [
   { id: 'msg1', senderId: '1', receiverId: '2', text: 'Hey Bob, how are you?', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2) },
   { id: 'msg2', senderId: '2', receiverId: '1', text: 'Hey Alice! I am good, thanks. How about you?', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 1.5) },
   { id: 'msg3', senderId: '1', receiverId: '2', text: 'Doing great! Just working on the new project.', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 1) },
   { id: 'msg4', senderId: '2', receiverId: '1', text: 'Awesome! Let me know if you need any help.', timestamp: new Date(Date.now() - 1000 * 60 * 30) },
 ];
 
-export const activityLog = `
+export let activityLog = `
 [2024-08-01 10:00:00] User 'Alice' (ID: 1) logged in.
 [2024-08-01 10:05:12] User 'Alice' (ID: 1) sent a message to User 'Bob' (ID: 2).
 [2024-08-01 10:05:45] User 'Bob' (ID: 2) logged in.
@@ -119,3 +120,7 @@ export const activityLog = `
 [2024-08-02 04:00:00] System maintenance started.
 [2024-08-02 04:30:00] System maintenance finished.
 `;
+
+export function updateActivityLog(newEntry: string) {
+  activityLog = `${activityLog.trim()}\n${newEntry}`;
+}

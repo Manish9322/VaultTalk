@@ -1,23 +1,37 @@
+
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Message, User, messages as initialMessages } from "@/lib/data";
+import { Message, User, messages as initialMessages, updateActivityLog } from "@/lib/data";
 import { useAuth } from "@/hooks/use-auth";
 import { useParams } from "next/navigation";
 import { useEffect, useRef, useState, FormEvent, useMemo } from "react";
-import { SendHorizonal, Ban } from "lucide-react";
+import { SendHorizonal, Ban, Flag, ShieldAlert } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChatHeaderActions } from "@/components/chat/chat-header-actions";
 import { ConnectionRequestActions } from "@/components/chat/connection-request-actions";
+import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export default function ChatConversationPage() {
   const { user: currentUser, users } = useAuth();
   const params = useParams();
   const otherUserId = params.id as string;
+  const { toast } = useToast();
   
   const [otherUser, setOtherUser] = useState<User | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -86,6 +100,23 @@ export default function ChatConversationPage() {
     setNewMessage("");
   };
 
+  const handleFlagMessage = (messageId: string) => {
+    setMessages(messages.map(m => m.id === messageId ? { ...m, isFlagged: true } : m));
+    
+    const flaggedMessage = messages.find(m => m.id === messageId);
+    if(currentUser && flaggedMessage){
+        const now = new Date();
+        const timestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+        const logEntry = `[${timestamp}] [WARN] [Messaging] User '${currentUser.name}' (ID: ${currentUser.id}) flagged a message (ID: ${messageId}) from User '${otherUser?.name}' (ID: ${otherUser?.id}).`;
+        updateActivityLog(logEntry);
+    }
+    
+    toast({
+        title: "Message Flagged",
+        description: "Thank you for your report. The content has been flagged for review.",
+    });
+  };
+
   if (!otherUser) {
     return <div className="flex items-center justify-center h-full">Loading...</div>;
   }
@@ -101,7 +132,7 @@ export default function ChatConversationPage() {
           <h2 className="text-lg font-semibold">{otherUser.name}</h2>
           <p className="text-sm text-muted-foreground">{otherUser.online ? "Online" : "Offline"}</p>
         </div>
-        <ChatHeaderActions otherUser={otherUser} isBlocked={isYouBlocking} isConnection={isConnection} />
+        <ChatHeaderActions otherUser={otherUser} isBlocked={isYouBlocking} isConnection={!!isConnection} />
       </header>
       
       {isBlocked ? (
@@ -122,7 +153,7 @@ export default function ChatConversationPage() {
                 <div
                 key={message.id}
                 className={cn(
-                    "flex items-end gap-2",
+                    "flex items-end gap-2 group",
                     message.senderId === currentUser?.id ? "justify-end" : "justify-start"
                 )}
                 >
@@ -134,14 +165,40 @@ export default function ChatConversationPage() {
                 )}
                 <div
                     className={cn(
-                    "max-w-xs md:max-w-md lg:max-w-lg rounded-lg px-4 py-2 shadow-sm",
+                    "max-w-xs md:max-w-md lg:max-w-lg rounded-lg px-4 py-3 shadow-sm relative",
                     message.senderId === currentUser?.id
                         ? "bg-primary text-primary-foreground"
-                        : "bg-card border"
+                        : "bg-card border",
+                     message.isFlagged && "bg-destructive/20 border-destructive"
                     )}
                 >
                     <p>{message.text}</p>
+                    {message.isFlagged && <ShieldAlert className="absolute top-1 right-1 h-4 w-4 text-destructive" />}
                 </div>
+
+                {!message.isFlagged && (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Flag className="h-4 w-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Flag Message for Review?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action will mark the message as inappropriate and submit it for review. Are you sure you want to proceed?
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => handleFlagMessage(message.id)}>
+                          Flag Message
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                )}
                 </div>
             ))}
             </div>
