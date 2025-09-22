@@ -1,9 +1,17 @@
+export type ConnectionRequest = {
+  userId: string;
+  status: 'pending-incoming' | 'pending-outgoing' | 'accepted' | 'declined';
+};
+
 export type User = {
   id: string;
   name: string;
   avatar: string;
   email: string;
   online?: boolean;
+  connections?: string[]; // Array of user IDs
+  blocked?: string[]; // Array of user IDs
+  connectionRequests?: ConnectionRequest[];
 };
 
 export type Message = {
@@ -15,12 +23,73 @@ export type Message = {
 };
 
 export const users: User[] = [
-  { id: '1', name: 'Alice', avatar: '1', email: 'alice@whisper.com', online: true },
-  { id: '2', name: 'Bob', avatar: '2', email: 'bob@whisper.com', online: false },
-  { id: '3', name: 'Charlie', avatar: '3', email: 'charlie@whisper.com', online: true },
-  { id: '4', name: 'Diana', avatar: '4', email: 'diana@whisper.com', online: false },
-  { id: '5', name: 'Eve', avatar: '5', email: 'eve@whisper.com', online: true },
-  { id: 'admin', name: 'Admin', avatar: '99', email: 'admin@whisper.com', online: true },
+  { 
+    id: '1', 
+    name: 'Alice', 
+    avatar: '1', 
+    email: 'alice@whisper.com', 
+    online: true, 
+    connections: ['2'], 
+    blocked: [],
+    connectionRequests: [
+      { userId: '2', status: 'accepted' },
+      { userId: '4', status: 'pending-outgoing' }
+    ]
+  },
+  { 
+    id: '2', 
+    name: 'Bob', 
+    avatar: '2', 
+    email: 'bob@whisper.com', 
+    online: false, 
+    connections: ['1'], 
+    blocked: [],
+    connectionRequests: [
+      { userId: '1', status: 'accepted' }
+    ]
+  },
+  { 
+    id: '3', 
+    name: 'Charlie', 
+    avatar: '3', 
+    email: 'charlie@whisper.com', 
+    online: true, 
+    connections: [], 
+    blocked: [],
+    connectionRequests: [
+      { userId: '1', status: 'pending-incoming' }
+    ]
+  },
+  { 
+    id: '4', 
+    name: 'Diana', 
+    avatar: '4', 
+    email: 'diana@whisper.com', 
+    online: false, 
+    connections: [], 
+    blocked: [],
+    connectionRequests: []
+  },
+  { 
+    id: '5', 
+    name: 'Eve', 
+    avatar: '5', 
+    email: 'eve@whisper.com', 
+    online: true, 
+    connections: [], 
+    blocked: [],
+    connectionRequests: []
+  },
+  { 
+    id: 'admin', 
+    name: 'Admin', 
+    avatar: '99', 
+    email: 'admin@whisper.com', 
+    online: true, 
+    connections: [], 
+    blocked: [],
+    connectionRequests: []
+  },
 ];
 
 export const messages: Message[] = [
@@ -28,8 +97,6 @@ export const messages: Message[] = [
   { id: 'msg2', senderId: '2', receiverId: '1', text: 'Hey Alice! I am good, thanks. How about you?', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 1.5) },
   { id: 'msg3', senderId: '1', receiverId: '2', text: 'Doing great! Just working on the new project.', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 1) },
   { id: 'msg4', senderId: '2', receiverId: '1', text: 'Awesome! Let me know if you need any help.', timestamp: new Date(Date.now() - 1000 * 60 * 30) },
-  { id: 'msg5', senderId: '1', receiverId: '3', text: 'Hi Charlie, are we still on for lunch tomorrow?', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24) },
-  { id: 'msg6', senderId: '3', receiverId: '1', text: 'Yes, absolutely! See you at 1 PM.', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 23) },
 ];
 
 export const activityLog = `
