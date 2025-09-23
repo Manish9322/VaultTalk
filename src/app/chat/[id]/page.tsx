@@ -8,7 +8,7 @@ import { Message, User, messages as initialMessages, updateActivityLog } from "@
 import { useAuth } from "@/hooks/use-auth";
 import { useParams } from "next/navigation";
 import { useEffect, useRef, useState, FormEvent, useMemo } from "react";
-import { SendHorizonal, Ban, Flag, ShieldAlert } from "lucide-react";
+import { SendHorizonal, Ban, Flag, ShieldAlert, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -26,6 +26,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { moderateContent } from "@/ai/flows/moderate-content-flow";
 
 export default function ChatConversationPage() {
   const { user: currentUser, users } = useAuth();
@@ -36,6 +37,7 @@ export default function ChatConversationPage() {
   const [otherUser, setOtherUser] = useState<User | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
+  const [isSending, setIsSending] = useState(false);
   const scrollViewportRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -87,20 +89,44 @@ export default function ChatConversationPage() {
   }, [currentUser, otherUser]);
 
 
-  const handleSendMessage = (e: FormEvent) => {
+  const handleSendMessage = async (e: FormEvent) => {
     e.preventDefault();
-    if (newMessage.trim() === "" || !currentUser) return;
+    if (newMessage.trim() === "" || !currentUser || !otherUser) return;
+
+    setIsSending(true);
+    let messageText = newMessage;
+
+    try {
+      const moderationResult = await moderateContent({ text: newMessage });
+      if (moderationResult.isSensitive) {
+        messageText = moderationResult.redactedText;
+        const now = new Date();
+        const timestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+        const logEntry = `[${timestamp}] [WARN] [Messaging] A message from User '${currentUser.name}' (ID: ${currentUser.id}) to User '${otherUser.name}' (ID: ${otherUser.id}) was automatically redacted.`;
+        updateActivityLog(logEntry);
+        toast({
+            title: "Content Redacted",
+            description: "Your message was modified to remove sensitive information.",
+            variant: "destructive"
+        });
+      }
+    } catch (error) {
+        console.error("Content moderation failed:", error);
+        // Optionally, handle moderation failure (e.g., prevent sending or send anyway)
+    }
+
 
     const message: Message = {
       id: `msg${Date.now()}`,
       senderId: currentUser.id,
       receiverId: otherUserId,
-      text: newMessage,
+      text: messageText,
       timestamp: new Date(),
     };
 
     setMessages([...messages, message]);
     setNewMessage("");
+    setIsSending(false);
   };
 
   const handleFlagMessage = (messageId: string) => {
@@ -214,9 +240,14 @@ export default function ChatConversationPage() {
                 onChange={(e) => setNewMessage(e.target.value)}
                 placeholder="Type a message..."
                 autoComplete="off"
+                disabled={isSending}
             />
-            <Button type="submit" size="icon" disabled={!newMessage.trim()}>
-                <SendHorizonal className="h-5 w-5" />
+            <Button type="submit" size="icon" disabled={!newMessage.trim() || isSending}>
+                {isSending ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                    <SendHorizonal className="h-5 w-5" />
+                )}
                 <span className="sr-only">Send</span>
             </Button>
             </form>

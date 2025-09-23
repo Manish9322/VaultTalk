@@ -4,11 +4,11 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Message, User, groups, users, messages as initialMessages } from "@/lib/data";
+import { Message, User, groups, users, messages as initialMessages, updateActivityLog } from "@/lib/data";
 import { useAuth } from "@/hooks/use-auth";
 import { useParams } from "next/navigation";
 import { useEffect, useRef, useState, FormEvent, useMemo } from "react";
-import { SendHorizonal, Ban, Flag, ShieldAlert, MoreVertical, Users as UsersIcon } from "lucide-react";
+import { SendHorizonal, Ban, Flag, ShieldAlert, MoreVertical, Users as UsersIcon, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -33,6 +33,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { moderateContent } from "@/ai/flows/moderate-content-flow";
 
 export default function GroupChatConversationPage() {
   const { user: currentUser } = useAuth();
@@ -44,6 +45,7 @@ export default function GroupChatConversationPage() {
   
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
+  const [isSending, setIsSending] = useState(false);
   const scrollViewportRef = useRef<HTMLDivElement>(null);
   const [isMembersModalOpen, setIsMembersModalOpen] = useState(false);
 
@@ -81,24 +83,56 @@ export default function GroupChatConversationPage() {
     return users.find(u => u.id === senderId);
   }
 
-  const handleSendMessage = (e: FormEvent) => {
+  const handleSendMessage = async (e: FormEvent) => {
     e.preventDefault();
-    if (newMessage.trim() === "" || !currentUser) return;
+    if (newMessage.trim() === "" || !currentUser || !group) return;
+    
+    setIsSending(true);
+    let messageText = newMessage;
+
+    try {
+      const moderationResult = await moderateContent({ text: newMessage });
+      if (moderationResult.isSensitive) {
+        messageText = moderationResult.redactedText;
+        const now = new Date();
+        const timestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+        const logEntry = `[${timestamp}] [WARN] [Messaging] A message from User '${currentUser.name}' (ID: ${currentUser.id}) in Group '${group.name}' (ID: ${group.id}) was automatically redacted.`;
+        updateActivityLog(logEntry);
+        toast({
+            title: "Content Redacted",
+            description: "Your message was modified to remove sensitive information.",
+            variant: "destructive"
+        });
+      }
+    } catch (error) {
+        console.error("Content moderation failed:", error);
+    }
 
     const message: Message = {
       id: `msg${Date.now()}`,
       senderId: currentUser.id,
       receiverId: groupId,
-      text: newMessage,
+      text: messageText,
       timestamp: new Date(),
     };
 
     setMessages([...messages, message]);
     setNewMessage("");
+    setIsSending(false);
   };
 
   const handleFlagMessage = (messageId: string) => {
     setMessages(messages.map(m => m.id === messageId ? { ...m, isFlagged: true } : m));
+    
+    const flaggedMessage = messages.find(m => m.id === messageId);
+    if(currentUser && flaggedMessage && group) {
+        const sender = getSender(flaggedMessage.senderId);
+        const now = new Date();
+        const timestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+        const logEntry = `[${timestamp}] [WARN] [Messaging] User '${currentUser.name}' (ID: ${currentUser.id}) flagged a message (ID: ${messageId}) from User '${sender?.name}' (ID: ${sender?.id}) in Group '${group.name}' (ID: ${group.id}).`;
+        updateActivityLog(logEntry);
+    }
+    
     toast({
         title: "Message Flagged",
         description: "Thank you for your report. The content has been flagged for review.",
@@ -244,9 +278,14 @@ export default function GroupChatConversationPage() {
                 onChange={(e) => setNewMessage(e.target.value)}
                 placeholder="Type a message..."
                 autoComplete="off"
+                disabled={isSending}
             />
-            <Button type="submit" size="icon" disabled={!newMessage.trim()}>
-                <SendHorizonal className="h-5 w-5" />
+            <Button type="submit" size="icon" disabled={!newMessage.trim() || isSending}>
+                {isSending ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                    <SendHorizonal className="h-5 w-5" />
+                )}
                 <span className="sr-only">Send</span>
             </Button>
             </form>
