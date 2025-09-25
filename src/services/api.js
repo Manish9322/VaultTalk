@@ -1,3 +1,4 @@
+
 // This file will contain API-related logic, such as RTK Query endpoints.
 
 // Or from '@reduxjs/toolkit/query/react'
@@ -11,9 +12,12 @@ export const exampleApi = createApi({
     getExampleByName: builder.query({
       query: (name) => `example/${name}`,
     }),
+    getDbStatus: builder.query({
+        query: () => 'db-status',
+    }),
   }),
 })
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const { useGetExampleByNameQuery } = exampleApi
+export const { useGetExampleByNameQuery, useGetDbStatusQuery } = exampleApi
