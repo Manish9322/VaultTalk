@@ -1,36 +1,40 @@
-// This is a placeholder for a database model schema.
-// In a real MERN stack application, you might use Mongoose like this:
-/*
+
 import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true,
+    required: [true, 'Name is required'],
   },
   email: {
     type: String,
-    required: true,
+    required: [true, 'Email is required'],
     unique: true,
+    lowercase: true,
+    trim: true,
   },
   password: {
     type: String,
-    required: true,
+    required: [true, 'Password is required'],
   },
-  createdAt: {
+  phone: {
+    type: String,
+    default: '',
+  },
+  avatar: {
+    type: String,
+    default: '',
+  },
+  avatarType: {
+    type: String,
+    enum: ['custom', 'placeholder'],
+    default: 'placeholder',
+  },
+  lastLogin: {
     type: Date,
-    default: Date.now,
   },
-});
+}, { timestamps: true }); // Adds createdAt and updatedAt automatically
 
 const User = mongoose.models.User || mongoose.model('User', userSchema);
 
 export default User;
-*/
-
-// For now, this file is a placeholder.
-export const UserSchema = {
-    name: "string",
-    email: "string",
-    createdAt: "date",
-};

@@ -15,9 +15,16 @@ export const exampleApi = createApi({
     getDbStatus: builder.query({
         query: () => 'db-status',
     }),
+    registerUser: builder.mutation({
+        query: (userData) => ({
+            url: 'register',
+            method: 'POST',
+            body: userData,
+        }),
+    }),
   }),
 })
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const { useGetExampleByNameQuery, useGetDbStatusQuery } = exampleApi
+export const { useGetExampleByNameQuery, useGetDbStatusQuery, useRegisterUserMutation } = exampleApi
