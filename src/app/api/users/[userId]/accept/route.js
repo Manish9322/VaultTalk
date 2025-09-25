@@ -21,14 +21,20 @@ export async function POST(request, { params }) {
         return NextResponse.json({ message: "One or both users not found." }, { status: 404 });
     }
 
+    // Ensure arrays exist before manipulating them
+    if (!currentUser.connectionRequests) currentUser.connectionRequests = [];
+    if (!currentUser.connections) currentUser.connections = [];
+    if (!targetUser.connectionRequests) targetUser.connectionRequests = [];
+    if (!targetUser.connections) targetUser.connections = [];
+
     // Current user accepts the request from targetUser
     // 1. Remove incoming request from current user's request list
     currentUser.connectionRequests = currentUser.connectionRequests.filter(
       req => req.userId.toString() !== targetUserId
     );
     // 2. Add targetUser to current user's connections list
-    if (!currentUser.connections.includes(targetUserId)) {
-        currentUser.connections.push(targetUserId);
+    if (!currentUser.connections.some(id => id.toString() === targetUserId)) {
+        currentUser.connections.push(new mongoose.Types.ObjectId(targetUserId));
     }
 
     // Target user's request is accepted
@@ -37,8 +43,8 @@ export async function POST(request, { params }) {
       req => req.userId.toString() !== currentUserId
     );
     // 2. Add current user to target user's connections list
-    if (!targetUser.connections.includes(currentUserId)) {
-        targetUser.connections.push(currentUserId);
+    if (!targetUser.connections.some(id => id.toString() === currentUserId)) {
+        targetUser.connections.push(new mongoose.Types.ObjectId(currentUserId));
     }
 
     await currentUser.save();

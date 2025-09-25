@@ -24,17 +24,25 @@ export async function POST(request, { params }) {
     if (!currentUser || !targetUser) {
         return NextResponse.json({ message: "One or both users not found." }, { status: 404 });
     }
+
+    // Ensure connectionRequests array exists
+    if (!currentUser.connectionRequests) {
+        currentUser.connectionRequests = [];
+    }
+    if (!targetUser.connectionRequests) {
+        targetUser.connectionRequests = [];
+    }
     
     // Add outgoing request to current user if it doesn't exist
     const existingCurrentUserRequest = currentUser.connectionRequests.find(req => req.userId.toString() === targetUserId);
     if (!existingCurrentUserRequest) {
-        currentUser.connectionRequests.push({ userId: targetUserId, status: 'pending-outgoing' });
+        currentUser.connectionRequests.push({ userId: new mongoose.Types.ObjectId(targetUserId), status: 'pending-outgoing' });
     }
     
     // Add incoming request to target user if it doesn't exist
     const existingTargetUserRequest = targetUser.connectionRequests.find(req => req.userId.toString() === currentUserId);
     if (!existingTargetUserRequest) {
-        targetUser.connectionRequests.push({ userId: currentUserId, status: 'pending-incoming' });
+        targetUser.connectionRequests.push({ userId: new mongoose.Types.ObjectId(currentUserId), status: 'pending-incoming' });
     }
 
     await currentUser.save();
@@ -68,6 +76,14 @@ export async function DELETE(request, { params }) {
 
         if (!currentUser || !targetUser) {
             return NextResponse.json({ message: "One or both users not found." }, { status: 404 });
+        }
+        
+        // Ensure connectionRequests array exists
+        if (!currentUser.connectionRequests) {
+            currentUser.connectionRequests = [];
+        }
+        if (!targetUser.connectionRequests) {
+            targetUser.connectionRequests = [];
         }
 
         // Current user withdraws request sent to target user OR declines request from target user
