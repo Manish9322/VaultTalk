@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server';
 import _db from '@/lib/db';
 
+
 export async function GET() {
   try {
     await _db();
