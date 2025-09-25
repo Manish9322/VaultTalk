@@ -50,7 +50,7 @@ export function ConnectionRequestActions({ otherUserId, status }: ConnectionRequ
   if (status === "declined") {
     return (
         <div className="p-4 text-center text-sm text-muted-foreground">
-            You have declined this connection request.
+            You have declined this connection request. You can send a new request from the Discover page.
         </div>
     );
   }

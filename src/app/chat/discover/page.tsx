@@ -71,7 +71,7 @@ export default function DiscoverPage() {
       case 'blocked':
         return <Button variant="destructive" disabled><Ban className="mr-2" /> Blocked</Button>;
       case 'declined':
-         return <Button onClick={() => sendConnectionRequest(otherUser.id)}><UserPlus className="mr-2" /> Send Request</Button>;
+         return <Button variant="secondary" disabled>Request Declined</Button>;
       default:
         return <Button onClick={() => sendConnectionRequest(otherUser.id)}><UserPlus className="mr-2" /> Send Request</Button>;
     }

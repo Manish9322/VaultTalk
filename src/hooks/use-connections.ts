@@ -72,8 +72,10 @@ export function useConnections() {
   const declineConnectionRequest = (requesterId: string) => {
     if (!currentUser) return;
 
-    // Update current user: change request status to 'declined' (or just remove it)
-    const newCurrentUserRequests = currentUser.connectionRequests?.filter(r => r.userId !== requesterId) || [];
+    // Update current user: change request status to 'declined'
+    const newCurrentUserRequests = currentUser.connectionRequests?.map(r => 
+        r.userId === requesterId ? { ...r, status: 'declined' as const } : r
+    ) || [];
     updateUser(currentUser.id, { connectionRequests: newCurrentUserRequests });
 
     // Update target user: remove the outgoing request

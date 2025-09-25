@@ -85,7 +85,9 @@ export const users: User[] = [
     online: false, 
     connections: [], 
     blocked: [],
-    connectionRequests: []
+    connectionRequests: [
+        { userId: '1', status: 'pending-incoming'}
+    ]
   },
   { 
     id: '5', 
