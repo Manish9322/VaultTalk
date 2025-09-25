@@ -5,11 +5,12 @@ import { User, users as initialUsers } from '@/lib/data';
 import { useRouter } from 'next/navigation';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useToast } from './use-toast';
+import { useLoginUserMutation } from '@/services/api';
 
 interface AuthContextType {
   user: User | null;
   users: User[];
-  login: (email: string) => boolean;
+  login: (email: string, password?: string) => Promise<any>;
   logout: () => void;
   register: (details: { name: string; email: string; avatar: string | null }) => boolean;
   updateUsers: (updatedUsers: User[]) => void;
@@ -24,6 +25,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const { toast } = useToast();
+  const [loginUser] = useLoginUserMutation();
 
   useEffect(() => {
     try {
@@ -34,7 +36,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(JSON.parse(storedUserJson));
       }
       if (storedUsersJson) {
-        setUsers(JSON.parse(storedUsersJson));
+        const parsedUsers = JSON.parse(storedUsersJson);
+        const mappedUsers = parsedUsers.map((u: any) => ({ ...u, id: u._id || u.id }));
+        setUsers(mappedUsers);
       } else {
         localStorage.setItem('vault-users', JSON.stringify(initialUsers));
       }
@@ -47,12 +51,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const updateUsers = (updatedUsers: User[]) => {
-    setUsers(updatedUsers);
-    localStorage.setItem('vault-users', JSON.stringify(updatedUsers));
+    const mappedUsers = updatedUsers.map((u: any) => ({ ...u, id: u._id || u.id }));
+    setUsers(mappedUsers);
+    localStorage.setItem('vault-users', JSON.stringify(mappedUsers));
     
     // Also update the current user's state if they were modified
     if (user) {
-      const updatedCurrentUser = updatedUsers.find(u => u.id === user.id);
+      const updatedCurrentUser = mappedUsers.find(u => u.id === user.id);
       if (updatedCurrentUser) {
         setUser(updatedCurrentUser);
         localStorage.setItem('vault-user', JSON.stringify(updatedCurrentUser));
@@ -60,19 +65,40 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const login = (email: string) => {
-    const foundUser = users.find(u => u.email === email);
-    if (foundUser) {
-      localStorage.setItem('vault-user', JSON.stringify(foundUser));
-      setUser(foundUser);
-      if (foundUser.email === 'admin@vaulttalk.com') {
-        router.push('/admin/dashboard');
-      } else {
-        router.push('/chat');
-      }
-      return true;
+  const login = async (email: string, password?: string) => {
+    if (!password) {
+        // This handles the old mock login which is now deprecated
+        toast({ title: "Please provide a password.", variant: "destructive" });
+        return false;
     }
-    return false;
+    
+    try {
+        const result = await loginUser({ email, password }).unwrap();
+        const loggedInUser = { ...result.user, id: result.user._id };
+        localStorage.setItem('vault-user', JSON.stringify(loggedInUser));
+        setUser(loggedInUser);
+
+        // Update the list of users to include the full user object from DB
+        const otherUsers = users.filter(u => u.id !== loggedInUser.id);
+        const newUsers = [...otherUsers, loggedInUser];
+        updateUsers(newUsers);
+
+        if (loggedInUser.email === 'admin@vaulttalk.com') {
+            router.push('/admin/dashboard');
+        } else {
+            router.push('/chat');
+        }
+        return result;
+    } catch (err) {
+        const apiError = err as any;
+        const errorMessage = apiError?.data?.message || "An unknown error occurred during login.";
+        toast({
+          title: "Login Failed",
+          description: errorMessage,
+          variant: "destructive",
+        });
+        return err;
+    }
   };
 
   const logout = () => {

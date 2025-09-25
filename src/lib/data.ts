@@ -6,6 +6,7 @@ export type ConnectionRequest = {
 
 export type User = {
   id: string;
+  _id?: string; // from mongodb
   name: string;
   avatar: string;
   avatarType?: 'custom' | 'placeholder';
@@ -32,6 +33,8 @@ export type Message = {
   isFlagged?: boolean;
 };
 
+// This is now mock data, the primary source of user data is the database.
+// This can be removed later.
 export const users: User[] = [
   { 
     id: '1', 
@@ -130,24 +133,24 @@ export let messages: Message[] = [
 
 
 export let activityLog = `
-[2024-08-01 10:00:00] User 'Alice' (ID: 1) logged in.
-[2024-08-01 10:05:12] User 'Alice' (ID: 1) sent a message to User 'Bob' (ID: 2).
-[2024-08-01 10:05:45] User 'Bob' (ID: 2) logged in.
-[2024-08-01 10:06:20] User 'Bob' (ID: 2) sent a message to User 'Alice' (ID: 1).
-[2024-08-01 11:30:00] User 'Charlie' (ID: 3) logged in.
-[2024-08-01 12:00:00] User 'Alice' (ID: 1) sent a message to User 'Charlie' (ID: 3).
-[2024-08-01 14:15:30] User 'Diana' (ID: 4) created an account.
-[2024-08-01 14:16:00] User 'Diana' (ID: 4) logged in.
-[2024-08-01 15:00:00] User 'Eve' (ID: 5) logged in.
-[2024-08-01 18:20:10] User 'Alice' (ID: 1) updated her profile.
-[2024-08-01 22:45:00] User 'Admin' (ID: admin) logged in.
-[2024-08-01 22:50:00] User 'Admin' (ID: admin) viewed the activity log.
-[2024-08-01 23:30:00] User 'Bob' (ID: 2) logged out.
-[2024-08-02 02:10:00] User 'Charlie' (ID: 3) failed login attempt.
-[2024-08-02 02:10:05] User 'Charlie' (ID: 3) failed login attempt.
-[2024-08-02 02:10:15] User 'Charlie' (ID: 3) failed login attempt. Account locked.
-[2024-08-02 04:00:00] System maintenance started.
-[2024-08-02 04:30:00] System maintenance finished.
+[2024-08-01 10:00:00] [INFO] [User] User 'Alice' (ID: 1) logged in.
+[2024-08-01 10:05:12] [INFO] [Messaging] User 'Alice' (ID: 1) sent a message to User 'Bob' (ID: 2).
+[2024-08-01 10:05:45] [INFO] [User] User 'Bob' (ID: 2) logged in.
+[2024-08-01 10:06:20] [INFO] [Messaging] User 'Bob' (ID: 2) sent a message to User 'Alice' (ID: 1).
+[2024-08-01 11:30:00] [INFO] [User] User 'Charlie' (ID: 3) logged in.
+[2024-08-01 12:00:00] [INFO] [Messaging] User 'Alice' (ID: 1) sent a message to User 'Charlie' (ID: 3).
+[2024-08-01 14:15:30] [INFO] [User] User 'Diana' (ID: 4) created an account.
+[2024-08-01 14:16:00] [INFO] [User] User 'Diana' (ID: 4) logged in.
+[2024-08-01 15:00:00] [INFO] [User] User 'Eve' (ID: 5) logged in.
+[2024-08-01 18:20:10] [INFO] [User] User 'Alice' (ID: 1) updated her profile.
+[2024-08-01 22:45:00] [INFO] [Admin] User 'Admin' (ID: admin) logged in.
+[2024-08-01 22:50:00] [INFO] [Admin] User 'Admin' (ID: admin) viewed the activity log.
+[2024-08-01 23:30:00] [INFO] [User] User 'Bob' (ID: 2) logged out.
+[2024-08-02 02:10:00] [WARN] [User] User 'Charlie' (ID: 3) failed login attempt.
+[2024-08-02 02:10:05] [WARN] [User] User 'Charlie' (ID: 3) failed login attempt.
+[2024-08-02 02:10:15] [ERROR] [User] User 'Charlie' (ID: 3) failed login attempt. Account locked.
+[2024-08-02 04:00:00] [INFO] [System] System maintenance started.
+[2024-08-02 04:30:00] [INFO] [System] System maintenance finished.
 `;
 
 export function updateActivityLog(newEntry: string) {

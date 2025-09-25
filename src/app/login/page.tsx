@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Logo } from "@/components/logo";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { useLoginUserMutation } from "@/services/api";
 
 export default function LoginPage() {
   const { login, user, isLoading } = useAuth();
@@ -19,7 +20,8 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const [loginUser, { isLoading: isLoggingIn, isError, error, isSuccess }] = useLoginUserMutation();
 
   useEffect(() => {
     if (!isLoading && user) {
@@ -31,22 +33,25 @@ export default function LoginPage() {
     }
   }, [user, isLoading, router]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (isSuccess) {
+      // The useAuth hook will handle redirection, so we don't need to do it here.
+    }
+    if (isError) {
+      const apiError = error as any;
+      const errorMessage = apiError?.data?.message || "An unknown error occurred.";
+      toast({
+        title: "Login Failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    }
+  }, [isSuccess, isError, error, toast]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    setTimeout(() => {
-      // In a real app, you'd also check the password.
-      // This is simplified for the example.
-      const success = login(email);
-      if (!success) {
-        toast({
-          title: "Login Failed",
-          description: "Invalid email or password. Try 'alice@vaulttalk.com'.",
-          variant: "destructive",
-        });
-        setIsSubmitting(false);
-      }
-    }, 1000);
+    const result = await login(email, password);
+    // Error handling is now done inside the useAuth hook and the useEffect above
   };
 
   if (isLoading || (!isLoading && user)) {
@@ -108,8 +113,8 @@ export default function LoginPage() {
             </div>
           </CardContent>
           <CardFooter className="flex-col gap-4">
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            <Button type="submit" className="w-full" disabled={isLoggingIn}>
+              {isLoggingIn && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Sign In
             </Button>
             <p className="text-sm text-muted-foreground">

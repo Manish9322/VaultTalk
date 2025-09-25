@@ -8,6 +8,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 export const exampleApi = createApi({
   reducerPath: 'exampleApi',
   baseQuery: fetchBaseQuery({ baseUrl: '/api/' }),
+  tagTypes: ['User'],
   endpoints: (builder) => ({
     getExampleByName: builder.query({
       query: (name) => `example/${name}`,
@@ -21,10 +22,19 @@ export const exampleApi = createApi({
             method: 'POST',
             body: userData,
         }),
+        invalidatesTags: ['User'],
     }),
+    loginUser: builder.mutation({
+        query: (credentials) => ({
+            url: 'login',
+            method: 'POST',
+            body: credentials,
+        }),
+        invalidatesTags: ['User'],
+    })
   }),
 })
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const { useGetExampleByNameQuery, useGetDbStatusQuery, useRegisterUserMutation } = exampleApi
+export const { useGetExampleByNameQuery, useGetDbStatusQuery, useRegisterUserMutation, useLoginUserMutation } = exampleApi

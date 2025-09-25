@@ -4,7 +4,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Message, User, groups, users, messages as initialMessages, updateActivityLog } from "@/lib/data";
+import { Message, User, groups as initialGroups, messages as initialMessages, updateActivityLog } from "@/lib/data";
 import { useAuth } from "@/hooks/use-auth";
 import { useParams } from "next/navigation";
 import { useEffect, useRef, useState, FormEvent, useMemo } from "react";
@@ -36,12 +36,12 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { moderateContent } from "@/ai/flows/moderate-content-flow";
 
 export default function GroupChatConversationPage() {
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, users } = useAuth();
   const params = useParams();
   const groupId = params.id as string;
   const { toast } = useToast();
   
-  const group = useMemo(() => groups.find(g => g.id === groupId), [groupId]);
+  const group = useMemo(() => initialGroups.find(g => g.id === groupId), [groupId]);
   
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
@@ -69,7 +69,7 @@ export default function GroupChatConversationPage() {
   }, [messages]);
   
   const getAvatarUrl = (user: User) => {
-    if (user.avatarType === 'custom') {
+    if (user.avatarType === 'custom' && user.avatar) {
       return user.avatar;
     }
     return PlaceHolderImages.find(img => img.id === user.avatar)?.imageUrl;

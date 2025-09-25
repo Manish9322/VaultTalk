@@ -14,7 +14,7 @@ import { usePathname } from "next/navigation";
 import { ScrollArea } from "../ui/scroll-area";
 import { Input } from "../ui/input";
 import { useState, useMemo } from "react";
-import { User, ConnectionRequest, groups as allGroups, Group } from "@/lib/data";
+import { User, ConnectionRequest, Group, groups as initialGroups } from "@/lib/data";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,7 +36,7 @@ export function AppSidebar() {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   const getAvatarUrl = (user: User) => {
-    if (user.avatarType === 'custom') {
+    if (user.avatarType === 'custom' && user.avatar) {
       return user.avatar;
     }
     return PlaceHolderImages.find(img => img.id === user.avatar)?.imageUrl;
@@ -57,7 +57,7 @@ export function AppSidebar() {
     const pendingRequests = allOtherUsers.filter(u => getRequestStatus(u)?.startsWith('pending'));
     const otherUsers = allOtherUsers.filter(u => !currentUser?.connections?.includes(u.id) && !getRequestStatus(u)?.startsWith('pending'));
     
-    const userGroups = allGroups.filter(g => g.members.includes(currentUser?.id || ''));
+    const userGroups = initialGroups.filter(g => g.members.includes(currentUser?.id || ''));
 
     if (!searchQuery) {
       return { connections, pendingRequests, otherUsers, groups: userGroups };

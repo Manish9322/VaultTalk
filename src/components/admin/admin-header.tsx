@@ -16,7 +16,7 @@ export function AdminHeader({ onCollapse }: { onCollapse: (collapsed: boolean) =
     const { user, logout } = useAuth();
     
     const getAvatarUrl = (user: User) => {
-        if (user.avatarType === 'custom') {
+        if (user.avatarType === 'custom' && user.avatar) {
           return user.avatar;
         }
         return PlaceHolderImages.find(img => img.id === user.avatar)?.imageUrl;
