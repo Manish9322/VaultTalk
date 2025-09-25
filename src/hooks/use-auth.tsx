@@ -21,7 +21,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [users, setUsers] = useState<User[]>(initialUsers);
+  const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const { toast } = useToast();
@@ -40,11 +40,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const mappedUsers = parsedUsers.map((u: any) => ({ ...u, id: u._id || u.id }));
         setUsers(mappedUsers);
       } else {
-        localStorage.setItem('vault-users', JSON.stringify(initialUsers));
+        // Fallback to initial mock data if nothing in local storage
+        const mappedInitialUsers = initialUsers.map((u: any) => ({ ...u, id: u._id || u.id }));
+        setUsers(mappedInitialUsers);
+        localStorage.setItem('vault-users', JSON.stringify(mappedInitialUsers));
       }
     } catch (error) {
       console.error("Failed to parse from localStorage", error);
-      localStorage.setItem('vault-users', JSON.stringify(initialUsers));
+      const mappedInitialUsers = initialUsers.map((u: any) => ({ ...u, id: u._id || u.id }));
+      setUsers(mappedInitialUsers);
+      localStorage.setItem('vault-users', JSON.stringify(mappedInitialUsers));
     } finally {
       setIsLoading(false);
     }
@@ -67,7 +72,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const login = async (email: string, password?: string) => {
     if (!password) {
-        // This handles the old mock login which is now deprecated
         toast({ title: "Please provide a password.", variant: "destructive" });
         return false;
     }
@@ -78,7 +82,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         localStorage.setItem('vault-user', JSON.stringify(loggedInUser));
         setUser(loggedInUser);
 
-        // Update the list of users to include the full user object from DB
+        // On login, we trust the database. Replace the local user list with DB users.
+        // For now, since we don't have a GET /users endpoint that returns full objects,
+        // we'll just update the logged-in user in the existing list.
         const otherUsers = users.filter(u => u.id !== loggedInUser.id);
         const newUsers = [...otherUsers, loggedInUser];
         updateUsers(newUsers);
@@ -108,30 +114,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const register = (details: { name: string; email: string, avatar: string | null }) => {
-    const existingUser = users.find(u => u.email === details.email);
-    if (existingUser) {
-      return false; // User already exists
-    }
-    
-    const newUser: User = {
-      id: `${users.length + 1}`,
-      name: details.name,
-      email: details.email,
-      avatar: details.avatar || `${(users.length % 5) + 1}`,
-      avatarType: details.avatar ? 'custom' : 'placeholder',
-      online: true,
-      connections: [],
-      blocked: [],
-      connectionRequests: [],
-    };
-
-    const newUsers = [...users, newUser];
-    updateUsers(newUsers);
-    
-    localStorage.setItem('vault-user', JSON.stringify(newUser));
-    setUser(newUser);
-    router.push('/chat');
-    return true;
+    // This function is now effectively deprecated in favor of the register API endpoint.
+    // The logic is handled by the register page itself.
+    // We keep it here to avoid breaking other parts of the app that might still reference it.
+    console.warn("Legacy register function called. This should be handled by the register page mutation.");
+    return false;
   }
 
   return (

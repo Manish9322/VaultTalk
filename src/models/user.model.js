@@ -1,5 +1,11 @@
 
+
 import mongoose from 'mongoose';
+
+const connectionRequestSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  status: { type: String, enum: ['pending-incoming', 'pending-outgoing', 'accepted', 'declined'] }
+}, { _id: false });
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -46,10 +52,7 @@ const userSchema = new mongoose.Schema({
     default: []
   },
   connectionRequests: {
-    type: [{
-      userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-      status: { type: String, enum: ['pending-incoming', 'pending-outgoing', 'accepted', 'declined'] }
-    }],
+    type: [connectionRequestSchema],
     default: []
   },
   lastLogin: {
@@ -59,14 +62,14 @@ const userSchema = new mongoose.Schema({
     timestamps: true, // Adds createdAt and updatedAt automatically
     toJSON: {
         transform: function(doc, ret) {
-            ret.id = ret._id;
+            ret.id = ret._id.toString(); // Ensure id is a string
             delete ret._id;
             delete ret.__v;
         }
     },
     toObject: {
         transform: function(doc, ret) {
-            ret.id = ret._id;
+            ret.id = ret._id.toString(); // Ensure id is a string
             delete ret._id;
             delete ret.__v;
         }
