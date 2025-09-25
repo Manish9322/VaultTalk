@@ -33,15 +33,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     try {
       const storedUserJson = localStorage.getItem('vault-user');
-      const storedUsersJson = localStorage.getItem('vault-users');
       
       if (storedUserJson) {
         setUser(JSON.parse(storedUserJson));
-      }
-      if (storedUsersJson) {
-        const parsedUsers = JSON.parse(storedUsersJson);
-        const mappedUsers = parsedUsers.map((u: any) => ({ ...u, id: u._id || u.id }));
-        setUsers(mappedUsers);
       }
     } catch (error) {
       console.error("Failed to parse from localStorage", error);
@@ -62,7 +56,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const updateUsers = (updatedUsers: User[]) => {
     const mappedUsers = updatedUsers.map((u: any) => ({ ...u, id: u._id || u.id }));
     setUsers(mappedUsers);
-    localStorage.setItem('vault-users', JSON.stringify(mappedUsers));
     
     // Also update the current user's state if they were modified
     if (user) {
@@ -109,7 +102,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const logout = () => {
     localStorage.removeItem('vault-user');
-    localStorage.removeItem('vault-users'); // Clear all user data on logout
     setUser(null);
     setUsers([]);
     router.push('/');
