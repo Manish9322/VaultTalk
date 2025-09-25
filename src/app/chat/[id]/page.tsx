@@ -4,11 +4,11 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Message, User, messages as initialMessages, updateActivityLog } from "@/lib/data";
+import { Message, User, updateActivityLog } from "@/lib/data";
 import { useAuth } from "@/hooks/use-auth";
 import { useParams } from "next/navigation";
 import { useEffect, useRef, useState, FormEvent, useMemo } from "react";
-import { SendHorizonal, Ban, Flag, ShieldAlert, Loader2 } from "lucide-react";
+import { SendHorizonal, Ban, Flag, ShieldAlert, Loader2, MessagesSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -35,7 +35,7 @@ export default function ChatConversationPage() {
   const { toast } = useToast();
   
   const [otherUser, setOtherUser] = useState<User | null>(null);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]); // Messages will be empty initially
   const [newMessage, setNewMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
   const scrollViewportRef = useRef<HTMLDivElement>(null);
@@ -44,14 +44,10 @@ export default function ChatConversationPage() {
     const user = users.find(u => u.id === otherUserId);
     setOtherUser(user || null);
 
-    if (currentUser && otherUserId) {
-      const filteredMessages = initialMessages.filter(
-        (m) =>
-          (m.senderId === currentUser.id && m.receiverId === otherUserId) ||
-          (m.senderId === otherUserId && m.receiverId === currentUser.id)
-      ).sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
-      setMessages(filteredMessages);
-    }
+    // In a real application, you would fetch messages for this conversation here.
+    // For now, we start with an empty chat.
+    setMessages([]);
+
   }, [otherUserId, currentUser, users]);
   
   const scrollToBottom = () => {
@@ -112,10 +108,10 @@ export default function ChatConversationPage() {
       }
     } catch (error) {
         console.error("Content moderation failed:", error);
-        // Optionally, handle moderation failure (e.g., prevent sending or send anyway)
     }
 
-
+    // This is where you would send the message to your backend.
+    // For now, we just add it to the local state.
     const message: Message = {
       id: `msg${Date.now()}`,
       senderId: currentUser.id,
@@ -133,7 +129,7 @@ export default function ChatConversationPage() {
     setMessages(messages.map(m => m.id === messageId ? { ...m, isFlagged: true } : m));
     
     const flaggedMessage = messages.find(m => m.id === messageId);
-    if(currentUser && flaggedMessage){
+    if(currentUser && flaggedMessage && otherUser){
         const now = new Date();
         const timestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
         const logEntry = `[${timestamp}] [WARN] [Messaging] User '${currentUser.name}' (ID: ${currentUser.id}) flagged a message (ID: ${messageId}) from User '${otherUser?.name}' (ID: ${otherUser?.id}).`;
@@ -147,7 +143,7 @@ export default function ChatConversationPage() {
   };
 
   if (!otherUser) {
-    return <div className="flex items-center justify-center h-full">Loading...</div>;
+    return <div className="flex items-center justify-center h-full"><Loader2 className="h-8 w-8 animate-spin" /></div>;
   }
 
   return (
@@ -165,7 +161,7 @@ export default function ChatConversationPage() {
       </header>
       
       {isBlocked ? (
-        <div className="flex-1 flex flex-col items-center justify-center text-center">
+        <div className="flex-1 flex flex-col items-center justify-center text-center p-4">
             <Ban className="h-16 w-16 text-destructive" />
             <h2 className="mt-4 text-xl font-semibold">
               {isYouBlocking ? "You have blocked this user" : "You are blocked by this user"}
@@ -178,7 +174,7 @@ export default function ChatConversationPage() {
         <>
         <ScrollArea className="flex-1" viewportRef={scrollViewportRef}>
             <div className="p-6 space-y-6">
-            {messages.map((message) => (
+            {messages.length > 0 ? messages.map((message) => (
                 <div
                 key={message.id}
                 className={cn(
@@ -229,7 +225,13 @@ export default function ChatConversationPage() {
                   </AlertDialog>
                 )}
                 </div>
-            ))}
+            )) : (
+              <div className="flex flex-col items-center justify-center h-full text-center p-4 text-muted-foreground">
+                  <MessagesSquare className="h-16 w-16" />
+                  <h3 className="mt-4 text-lg font-semibold text-foreground">Start the conversation</h3>
+                  <p className="mt-1 text-sm">Messages you send will appear here. No messages have been sent yet.</p>
+              </div>
+            )}
             </div>
         </ScrollArea>
 

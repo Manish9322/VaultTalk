@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
-import { UserPlus, UserCheck, Ban, Loader2 } from "lucide-react";
+import { UserPlus, UserCheck, Ban, Loader2, Search, ServerCrash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useGetAllUsersQuery } from "@/services/api";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -26,8 +26,10 @@ export default function DiscoverPage() {
   const { data: users = [], isLoading, isError, error } = useGetAllUsersQuery();
 
   const otherUsers = useMemo(() => {
-    if (!users) return [];
-    return users.filter(u => u.id !== currentUser?.id && u.email !== 'admin@vaulttalk.com');
+    if (!users || !currentUser) return [];
+    // Also filter out any users that might be blocking the current user.
+    // In a real app, the backend would ideally not even send these.
+    return users.filter(u => u.id !== currentUser.id && u.email !== 'admin@vaulttalk.com' && !u.blocked?.includes(currentUser.id));
   }, [users, currentUser]);
 
   const filteredUsers = useMemo(() => {
@@ -77,18 +79,69 @@ export default function DiscoverPage() {
     }
   };
 
-  if (isError) {
-    return (
-        <div className="p-6">
-            <Alert variant="destructive">
-                <AlertTriangle className="h-4 w-4" />
-                <AlertTitle>Error</AlertTitle>
-                <AlertDescription>
-                    Failed to load users. Please try again later.
-                </AlertDescription>
-            </Alert>
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {Array.from({ length: 8 }).map((_, i) => (
+                <Card key={i} className="flex flex-col">
+                    <CardHeader className="flex flex-col items-center text-center">
+                        <Skeleton className="h-20 w-20 rounded-full mb-4" />
+                        <Skeleton className="h-6 w-32 mb-2" />
+                        <Skeleton className="h-4 w-40" />
+                    </CardHeader>
+                    <CardContent className="flex-grow flex items-end justify-center">
+                        <Skeleton className="h-10 w-36" />
+                    </CardContent>
+                </Card>
+            ))}
         </div>
-    )
+      );
+    }
+    
+    if (isError) {
+      return (
+          <Alert variant="destructive" className="mt-6">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertTitle>Error Loading Users</AlertTitle>
+              <AlertDescription>
+                  There was a problem fetching the user list from the server. Please try again later.
+              </AlertDescription>
+          </Alert>
+      )
+    }
+
+    if (filteredUsers.length === 0) {
+      return (
+        <div className="text-center py-16">
+          <Search className="mx-auto h-12 w-12 text-muted-foreground" />
+          <h3 className="mt-4 text-lg font-semibold">No Users Found</h3>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {searchQuery ? "Try a different search term." : "There are no other registered users to show."}
+          </p>
+        </div>
+      )
+    }
+
+    return (
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {filteredUsers.map(user => (
+          <Card key={user.id} className="flex flex-col">
+            <CardHeader className="flex flex-col items-center text-center">
+              <Avatar className="h-20 w-20 mb-4">
+                <AvatarImage src={getAvatarUrl(user)} alt={user.name} />
+                <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+              </Avatar>
+              <CardTitle>{user.name}</CardTitle>
+              <CardDescription>{user.email}</CardDescription>
+            </CardHeader>
+            <CardContent className="flex-grow flex items-end justify-center">
+              <ActionButton otherUser={user} />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
   }
 
   return (
@@ -108,40 +161,7 @@ export default function DiscoverPage() {
         </CardContent>
       </Card>
       
-      {isLoading ? (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {Array.from({ length: 8 }).map((_, i) => (
-                <Card key={i} className="flex flex-col">
-                    <CardHeader className="flex flex-col items-center text-center">
-                        <Skeleton className="h-20 w-20 rounded-full mb-4" />
-                        <Skeleton className="h-6 w-32 mb-2" />
-                        <Skeleton className="h-4 w-40" />
-                    </CardHeader>
-                    <CardContent className="flex-grow flex items-end justify-center">
-                        <Skeleton className="h-10 w-36" />
-                    </CardContent>
-                </Card>
-            ))}
-        </div>
-      ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {filteredUsers.map(user => (
-            <Card key={user.id} className="flex flex-col">
-              <CardHeader className="flex flex-col items-center text-center">
-                <Avatar className="h-20 w-20 mb-4">
-                  <AvatarImage src={getAvatarUrl(user)} alt={user.name} />
-                  <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <CardTitle>{user.name}</CardTitle>
-                <CardDescription>{user.email}</CardDescription>
-              </CardHeader>
-              <CardContent className="flex-grow flex items-end justify-center">
-                <ActionButton otherUser={user} />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
+      {renderContent()}
     </div>
   );
 }

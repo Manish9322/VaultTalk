@@ -1,18 +1,17 @@
 
 "use client";
 
-import { User, users as initialUsers } from '@/lib/data';
+import { User } from '@/lib/data';
 import { useRouter } from 'next/navigation';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useToast } from './use-toast';
-import { useLoginUserMutation } from '@/services/api';
+import { useLoginUserMutation, useGetAllUsersQuery } from '@/services/api';
 
 interface AuthContextType {
   user: User | null;
   users: User[];
   login: (email: string, password?: string) => Promise<any>;
   logout: () => void;
-  register: (details: { name: string; email: string; avatar: string | null }) => boolean;
   updateUsers: (updatedUsers: User[]) => void;
   isLoading: boolean;
 }
@@ -27,6 +26,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const { toast } = useToast();
   const [loginUser] = useLoginUserMutation();
 
+  const { data: allUsersFromApi, isSuccess: isUsersSuccess } = useGetAllUsersQuery(undefined, {
+    skip: !user, // Don't fetch all users if no one is logged in
+  });
+
   useEffect(() => {
     try {
       const storedUserJson = localStorage.getItem('vault-user');
@@ -39,21 +42,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const parsedUsers = JSON.parse(storedUsersJson);
         const mappedUsers = parsedUsers.map((u: any) => ({ ...u, id: u._id || u.id }));
         setUsers(mappedUsers);
-      } else {
-        // Fallback to initial mock data if nothing in local storage
-        const mappedInitialUsers = initialUsers.map((u: any) => ({ ...u, id: u._id || u.id }));
-        setUsers(mappedInitialUsers);
-        localStorage.setItem('vault-users', JSON.stringify(mappedInitialUsers));
       }
     } catch (error) {
       console.error("Failed to parse from localStorage", error);
-      const mappedInitialUsers = initialUsers.map((u: any) => ({ ...u, id: u._id || u.id }));
-      setUsers(mappedInitialUsers);
-      localStorage.setItem('vault-users', JSON.stringify(mappedInitialUsers));
     } finally {
       setIsLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    // Once the user is logged in and the API call for all users succeeds,
+    // update the local state to ensure it's in sync with the database.
+    if(isUsersSuccess && allUsersFromApi) {
+        updateUsers(allUsersFromApi);
+    }
+  }, [isUsersSuccess, allUsersFromApi]);
+
 
   const updateUsers = (updatedUsers: User[]) => {
     const mappedUsers = updatedUsers.map((u: any) => ({ ...u, id: u._id || u.id }));
@@ -82,12 +86,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         localStorage.setItem('vault-user', JSON.stringify(loggedInUser));
         setUser(loggedInUser);
 
-        // On login, we trust the database. Replace the local user list with DB users.
-        // For now, since we don't have a GET /users endpoint that returns full objects,
-        // we'll just update the logged-in user in the existing list.
-        const otherUsers = users.filter(u => u.id !== loggedInUser.id);
-        const newUsers = [...otherUsers, loggedInUser];
-        updateUsers(newUsers);
+        // After login, the `useGetAllUsersQuery` will trigger,
+        // and the useEffect above will handle updating the users list.
 
         if (loggedInUser.email === 'admin@vaulttalk.com') {
             router.push('/admin/dashboard');
@@ -109,20 +109,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const logout = () => {
     localStorage.removeItem('vault-user');
+    localStorage.removeItem('vault-users'); // Clear all user data on logout
     setUser(null);
+    setUsers([]);
     router.push('/');
   };
 
-  const register = (details: { name: string; email: string, avatar: string | null }) => {
-    // This function is now effectively deprecated in favor of the register API endpoint.
-    // The logic is handled by the register page itself.
-    // We keep it here to avoid breaking other parts of the app that might still reference it.
-    console.warn("Legacy register function called. This should be handled by the register page mutation.");
+  const register = () => {
+    // This is a placeholder as registration is handled by the register page mutation.
     return false;
   }
 
   return (
-    <AuthContext.Provider value={{ user, users, login, logout, register, updateUsers, isLoading }}>
+    <AuthContext.Provider value={{ user, users, login, logout, updateUsers, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,3 +1,4 @@
+
 "use client"
 
 import { User } from "@/lib/data"
@@ -13,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Checkbox } from "@/components/ui/checkbox"
+import { format } from "date-fns"
 
 export const columns: ColumnDef<User>[] = [
     {
@@ -56,14 +58,20 @@ export const columns: ColumnDef<User>[] = [
     header: "Email",
   },
   {
-    accessorKey: "registrationDate",
+    accessorKey: "createdAt",
     header: "Registration Date",
-    cell: () => new Date().toLocaleDateString(), // Placeholder
+    cell: ({ row }) => {
+      const date = row.original.createdAt;
+      return date ? format(new Date(date), "PPP") : "N/A";
+    },
   },
   {
     accessorKey: "lastLogin",
     header: "Last Login",
-    cell: () => new Date().toLocaleString(), // Placeholder
+    cell: ({ row }) => {
+      const date = row.original.lastLogin;
+      return date ? format(new Date(date), "PPp") : "Never";
+    },
   },
   {
     id: "actions",

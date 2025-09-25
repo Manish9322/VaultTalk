@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -51,12 +50,16 @@ export function AppSidebar() {
   };
 
   const { connections, pendingRequests, otherUsers, groups } = useMemo(() => {
-    const allOtherUsers = users.filter(u => u.id !== currentUser?.id && u.id !== 'admin' && !currentUser?.blocked?.includes(u.id));
+    if (!currentUser || !users) {
+        return { connections: [], pendingRequests: [], otherUsers: [], groups: [] };
+    }
+    const allOtherUsers = users.filter(u => u.id !== currentUser.id && u.email !== 'admin@vaulttalk.com' && !currentUser?.blocked?.includes(u.id));
 
     const connections = allOtherUsers.filter(u => currentUser?.connections?.includes(u.id));
     const pendingRequests = allOtherUsers.filter(u => getRequestStatus(u)?.startsWith('pending'));
     const otherUsers = allOtherUsers.filter(u => !currentUser?.connections?.includes(u.id) && !getRequestStatus(u)?.startsWith('pending'));
     
+    // Group data is still from mock file. In a real app, this would be fetched.
     const userGroups = initialGroups.filter(g => g.members.includes(currentUser?.id || ''));
 
     if (!searchQuery) {
@@ -175,7 +178,7 @@ export function AppSidebar() {
             </>
           )}
 
-          {otherUsers.length > 0 && (
+          {otherUsers.length > 0 && searchQuery && (
             <>
                <h3 className="flex items-center gap-2 px-2 py-2 mt-4 text-xs font-semibold text-muted-foreground"><UserPlus className="h-4 w-4" /> Other Users</h3>
                {otherUsers.map((u) => <UserLink key={u.id} user={u} />)}

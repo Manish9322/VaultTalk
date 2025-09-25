@@ -4,11 +4,11 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Message, User, groups as initialGroups, messages as initialMessages, updateActivityLog } from "@/lib/data";
+import { Message, User, groups as initialGroups, updateActivityLog } from "@/lib/data";
 import { useAuth } from "@/hooks/use-auth";
 import { useParams } from "next/navigation";
 import { useEffect, useRef, useState, FormEvent, useMemo } from "react";
-import { SendHorizonal, Ban, Flag, ShieldAlert, MoreVertical, Users as UsersIcon, Loader2 } from "lucide-react";
+import { SendHorizonal, Ban, Flag, ShieldAlert, MoreVertical, Users as UsersIcon, Loader2, MessagesSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -41,21 +41,18 @@ export default function GroupChatConversationPage() {
   const groupId = params.id as string;
   const { toast } = useToast();
   
+  // Group data is still from mock file. In a real app, this would be fetched.
   const group = useMemo(() => initialGroups.find(g => g.id === groupId), [groupId]);
   
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]); // Messages start empty
   const [newMessage, setNewMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
   const scrollViewportRef = useRef<HTMLDivElement>(null);
   const [isMembersModalOpen, setIsMembersModalOpen] = useState(false);
 
   useEffect(() => {
-    if (groupId) {
-      const filteredMessages = initialMessages.filter(
-        (m) => m.receiverId === groupId
-      ).sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
-      setMessages(filteredMessages);
-    }
+    // In a real app, you'd fetch group messages here.
+    setMessages([]);
   }, [groupId]);
   
   const scrollToBottom = () => {
@@ -108,6 +105,7 @@ export default function GroupChatConversationPage() {
         console.error("Content moderation failed:", error);
     }
 
+    // In a real app, this message would be sent to a backend.
     const message: Message = {
       id: `msg${Date.now()}`,
       senderId: currentUser.id,
@@ -140,7 +138,7 @@ export default function GroupChatConversationPage() {
   };
 
   if (!group) {
-    return <div className="flex items-center justify-center h-full">Loading...</div>;
+    return <div className="flex items-center justify-center h-full">Group not found.</div>;
   }
 
   return (
@@ -209,7 +207,7 @@ export default function GroupChatConversationPage() {
         <>
         <ScrollArea className="flex-1" viewportRef={scrollViewportRef}>
             <div className="p-6 space-y-6">
-            {messages.map((message) => {
+            {messages.length > 0 ? messages.map((message) => {
                 const sender = getSender(message.senderId);
                 if (!sender) return null;
 
@@ -267,7 +265,13 @@ export default function GroupChatConversationPage() {
                     </AlertDialog>
                     )}
                 </div>
-            )})}
+            )}) : (
+              <div className="flex flex-col items-center justify-center h-full text-center p-4 text-muted-foreground">
+                  <MessagesSquare className="h-16 w-16" />
+                  <h3 className="mt-4 text-lg font-semibold text-foreground">Welcome to #{group.name}</h3>
+                  <p className="mt-1 text-sm">Send a message to get the conversation started.</p>
+              </div>
+            )}
             </div>
         </ScrollArea>
 
