@@ -41,8 +41,14 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  connections: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-  blocked: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  connections: {
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    default: []
+  },
+  blocked: {
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    default: []
+  },
   connectionRequests: {
     type: [connectionRequestSchema],
     default: []

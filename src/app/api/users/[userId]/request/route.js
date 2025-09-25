@@ -13,6 +13,9 @@ export async function POST(request, { params }) {
   if (!currentUserId || !targetUserId) {
     return NextResponse.json({ message: "Missing user IDs." }, { status: 400 });
   }
+   if (currentUserId === targetUserId) {
+    return NextResponse.json({ message: "You cannot send a connection request to yourself." }, { status: 400 });
+  }
 
   const session = await mongoose.startSession();
   session.startTransaction();
