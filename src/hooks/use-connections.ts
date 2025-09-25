@@ -18,16 +18,16 @@ export function useConnections() {
   const sendConnectionRequest = (targetUserId: string) => {
     if (!currentUser) return;
 
-    // Update target user's requests
+    // Update target user: add an incoming request
     const targetUser = users.find(u => u.id === targetUserId);
     if (targetUser) {
-        const newRequests = [...(targetUser.connectionRequests?.filter(r => r.userId !== currentUser.id) || []), { userId: currentUser.id, status: 'pending-incoming' as const }];
-        updateUserInState(targetUserId, { connectionRequests: newRequests });
+        const newTargetRequests = [...(targetUser.connectionRequests?.filter(r => r.userId !== currentUser.id) || []), { userId: currentUser.id, status: 'pending-incoming' as const }];
+        updateUserInState(targetUserId, { connectionRequests: newTargetRequests });
     }
 
-    // Update current user's requests
-    const newRequests = [...(currentUser.connectionRequests?.filter(r => r.userId !== targetUserId) || []), { userId: targetUserId, status: 'pending-outgoing' as const }];
-    updateUserInState(currentUser.id, { connectionRequests: newRequests });
+    // Update current user: add an outgoing request
+    const newCurrentUserRequests = [...(currentUser.connectionRequests?.filter(r => r.userId !== targetUserId) || []), { userId: targetUserId, status: 'pending-outgoing' as const }];
+    updateUserInState(currentUser.id, { connectionRequests: newCurrentUserRequests });
 
     toast({ title: "Success", description: "Connection request sent." });
   };
@@ -55,14 +55,14 @@ export function useConnections() {
     
     // Update current user (the one accepting)
     const newCurrentUserRequests = currentUser.connectionRequests?.filter(r => r.userId !== requesterId) || [];
-    const newCurrentUserConnections = [...(currentUser.connections || []), requesterId];
+    const newCurrentUserConnections = [...new Set([...(currentUser.connections || []), requesterId])];
     updateUserInState(currentUser.id, { connections: newCurrentUserConnections, connectionRequests: newCurrentUserRequests });
 
     // Update target user (the one who sent the request)
     const requester = users.find(u => u.id === requesterId);
     if (requester) {
         const newRequesterRequests = requester.connectionRequests?.filter(r => r.userId !== currentUser.id) || [];
-        const newRequesterConnections = [...(requester.connections || []), currentUser.id];
+        const newRequesterConnections = [...new Set([...(requester.connections || []), currentUser.id])];
         updateUserInState(requesterId, { connections: newRequesterConnections, connectionRequests: newRequesterRequests });
     }
 
@@ -78,7 +78,7 @@ export function useConnections() {
     ) || [];
     updateUserInState(currentUser.id, { connectionRequests: newCurrentUserRequests });
 
-    // Update target user: remove their outgoing request to prevent a pending state on their side
+    // Update target user (requester): remove their outgoing request.
      const requester = users.find(u => u.id === requesterId);
      if (requester) {
         const newRequesterRequests = requester.connectionRequests?.filter(r => r.userId !== currentUser.id) || [];

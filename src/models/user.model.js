@@ -3,8 +3,8 @@
 import mongoose from 'mongoose';
 
 const connectionRequestSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  status: { type: String, enum: ['pending-incoming', 'pending-outgoing', 'accepted', 'declined'] }
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  status: { type: String, enum: ['pending-incoming', 'pending-outgoing', 'accepted', 'declined'], required: true }
 }, { _id: false });
 
 const userSchema = new mongoose.Schema({
@@ -42,13 +42,11 @@ const userSchema = new mongoose.Schema({
     default: false,
   },
   connections: {
-    type: [mongoose.Schema.Types.ObjectId],
-    ref: 'User',
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     default: []
   },
   blocked: {
-    type: [mongoose.Schema.Types.ObjectId],
-    ref: 'User',
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     default: []
   },
   connectionRequests: {

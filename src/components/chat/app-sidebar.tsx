@@ -46,25 +46,29 @@ export function AppSidebar() {
     return PlaceHolderImages.find(img => img.id === avatarId)?.imageUrl;
   }
 
-  const getRequestStatus = (otherUser: User): ConnectionRequest['status'] | undefined => {
-    return currentUser?.connectionRequests?.find(r => r.userId === otherUser.id)?.status;
+  const getRequestStatus = (otherUserId: string): ConnectionRequest['status'] | undefined => {
+    return currentUser?.connectionRequests?.find(r => r.userId === otherUserId)?.status;
   };
 
   const { connections, pendingRequests, otherUsers, groups } = useMemo(() => {
     if (!currentUser || !users) {
         return { connections: [], pendingRequests: [], otherUsers: [], groups: [] };
     }
-    const allOtherUsers = users.filter(u => u.id !== currentUser.id && u.email !== 'admin@vaulttalk.com' && !currentUser?.blocked?.includes(u.id));
-
-    const connections = allOtherUsers.filter(u => currentUser?.connections?.includes(u.id));
     
-    // Split pending requests into incoming and outgoing
-    const pendingRequests = allOtherUsers.filter(u => {
-      const status = getRequestStatus(u);
-      return status === 'pending-incoming' || status === 'pending-outgoing';
-    });
+    // All users from the system, excluding the current user and admin.
+    const allOtherUsers = users.filter(u => u.id !== currentUser.id && u.email !== 'admin@vaulttalk.com');
 
-    const otherUsers = allOtherUsers.filter(u => !currentUser?.connections?.includes(u.id) && !getRequestStatus(u)?.startsWith('pending'));
+    // Users the current user is already connected with.
+    const connections = allOtherUsers.filter(u => currentUser.connections?.includes(u.id));
+    
+    // Users with a pending request (either incoming or outgoing).
+    const pendingRequests = allOtherUsers.filter(u => currentUser.connectionRequests?.some(r => r.userId === u.id));
+    
+    // Users that are not connections and have no pending requests.
+    const otherUsers = allOtherUsers.filter(u => 
+        !currentUser.connections?.includes(u.id) &&
+        !currentUser.connectionRequests?.some(r => r.userId === u.id)
+    );
     
     // Group data is still from mock file. In a real app, this would be fetched.
     const userGroups: Group[] = []; // No mock groups
@@ -84,8 +88,7 @@ export function AppSidebar() {
   }, [currentUser, users, searchQuery]);
 
 
-  const UserLink = ({ user }: { user: User }) => {
-    const requestStatus = getRequestStatus(user);
+  const UserLink = ({ user, status }: { user: User, status?: ConnectionRequest['status'] }) => {
     return (
       <Link href={`/chat/${user.id}`} passHref>
         <Button
@@ -93,7 +96,7 @@ export function AppSidebar() {
           className={cn(
             "w-full justify-start gap-3 h-12",
             pathname === `/chat/${user.id}` && "bg-accent text-accent-foreground",
-            requestStatus === 'pending-incoming' && 'bg-primary/10'
+            status === 'pending-incoming' && 'bg-primary/10'
           )}
         >
           <Avatar className="h-8 w-8 relative">
@@ -103,8 +106,8 @@ export function AppSidebar() {
           </Avatar>
           <div className="flex-1 text-left truncate">
             <span className="truncate">{user.name}</span>
-            {requestStatus === 'pending-incoming' && <p className="text-xs text-primary font-semibold">Incoming request</p>}
-            {requestStatus === 'pending-outgoing' && <p className="text-xs text-muted-foreground">Request sent</p>}
+            {status === 'pending-incoming' && <p className="text-xs text-primary font-semibold">Incoming request</p>}
+            {status === 'pending-outgoing' && <p className="text-xs text-muted-foreground">Request sent</p>}
           </div>
         </Button>
       </Link>
@@ -175,7 +178,7 @@ export function AppSidebar() {
           {pendingRequests.length > 0 && (
             <>
               <h3 className="flex items-center gap-2 px-2 py-2 mt-4 text-xs font-semibold text-muted-foreground"><Clock className="h-4 w-4" /> Pending</h3>
-              {pendingRequests.map((u) => <UserLink key={u.id} user={u} />)}
+              {pendingRequests.map((u) => <UserLink key={u.id} user={u} status={getRequestStatus(u.id)} />)}
             </>
           )}
 
