@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 
 const connectionRequestSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  status: { type: String, enum: ['pending-incoming', 'pending-outgoing', 'accepted', 'declined'], required: true }
+  status: { type: String, enum: ['pending-incoming', 'pending-outgoing', 'declined'], required: true }
 }, { _id: false });
 
 const userSchema = new mongoose.Schema({
@@ -41,14 +41,8 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  connections: {
-    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-    default: []
-  },
-  blocked: {
-    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-    default: []
-  },
+  connections: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  blocked: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   connectionRequests: {
     type: [connectionRequestSchema],
     default: []

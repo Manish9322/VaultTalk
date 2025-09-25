@@ -8,7 +8,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 export const exampleApi = createApi({
   reducerPath: 'exampleApi',
   baseQuery: fetchBaseQuery({ baseUrl: '/api/' }),
-  tagTypes: ['User'],
+  tagTypes: ['User', 'Users'],
   endpoints: (builder) => ({
     getExampleByName: builder.query({
       query: (name) => `example/${name}`,
@@ -22,7 +22,7 @@ export const exampleApi = createApi({
             method: 'POST',
             body: userData,
         }),
-        invalidatesTags: ['User'],
+        invalidatesTags: ['Users'],
     }),
     loginUser: builder.mutation({
         query: (credentials) => ({
@@ -30,19 +30,76 @@ export const exampleApi = createApi({
             method: 'POST',
             body: credentials,
         }),
-        invalidatesTags: ['User'],
+        invalidatesTags: (result, error, { email }) => [{ type: 'User', id: email }, 'Users'],
     }),
     getAllUsers: builder.query({
         query: () => 'users',
-        providesTags: ['User'],
+        providesTags: ['Users'],
         transformResponse: (response) => {
             // The user object from the DB has _id, but the frontend uses id.
             return response.map(user => ({ ...user, id: user._id }));
         }
-    })
+    }),
+    sendConnectionRequest: builder.mutation({
+        query: ({ currentUserId, targetUserId }) => ({
+            url: `users/${targetUserId}/request`,
+            method: 'POST',
+            body: { currentUserId },
+        }),
+        invalidatesTags: ['Users'],
+    }),
+    acceptConnectionRequest: builder.mutation({
+        query: ({ currentUserId, targetUserId }) => ({
+            url: `users/${targetUserId}/accept`,
+            method: 'POST',
+            body: { currentUserId },
+        }),
+        invalidatesTags: ['Users'],
+    }),
+    declineOrWithdrawConnectionRequest: builder.mutation({
+        query: ({ currentUserId, targetUserId, action }) => ({
+            url: `users/${targetUserId}/request?currentUserId=${currentUserId}&action=${action}`,
+            method: 'DELETE',
+        }),
+        invalidatesTags: ['Users'],
+    }),
+    removeConnection: builder.mutation({
+        query: ({ currentUserId, targetUserId }) => ({
+            url: `users/${targetUserId}/remove?currentUserId=${currentUserId}`,
+            method: 'DELETE',
+        }),
+        invalidatesTags: ['Users'],
+    }),
+    blockUser: builder.mutation({
+        query: ({ currentUserId, targetUserId }) => ({
+            url: `users/${targetUserId}/block`,
+            method: 'POST',
+            body: { currentUserId },
+        }),
+        invalidatesTags: ['Users'],
+    }),
+    unblockUser: builder.mutation({
+        query: ({ currentUserId, targetUserId }) => ({
+            url: `users/${targetUserId}/block?currentUserId=${currentUserId}`,
+            method: 'DELETE',
+        }),
+        invalidatesTags: ['Users'],
+    }),
   }),
 })
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const { useGetExampleByNameQuery, useGetDbStatusQuery, useRegisterUserMutation, useLoginUserMutation, useGetAllUsersQuery } = exampleApi
+export const { 
+    useGetExampleByNameQuery, 
+    useGetDbStatusQuery, 
+    useRegisterUserMutation, 
+    useLoginUserMutation, 
+    useGetAllUsersQuery,
+    useSendConnectionRequestMutation,
+    useAcceptConnectionRequestMutation,
+    useDeclineOrWithdrawConnectionRequestMutation,
+    useRemoveConnectionMutation,
+    useBlockUserMutation,
+    useUnblockUserMutation,
+} = exampleApi
