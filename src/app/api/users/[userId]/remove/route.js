@@ -16,24 +16,16 @@ export async function DELETE(request, { params }) {
         return NextResponse.json({ message: "Missing user IDs." }, { status: 400 });
     }
 
-    const session = await mongoose.startSession();
-    session.startTransaction();
-
     try {
         // Remove target from current user's connections
-        await User.findByIdAndUpdate(currentUserId, { $pull: { connections: targetUserId } }, { session });
+        await User.findByIdAndUpdate(currentUserId, { $pull: { connections: targetUserId } });
         
         // Remove current user from target's connections
-        await User.findByIdAndUpdate(targetUserId, { $pull: { connections: currentUserId } }, { session });
-        
-        await session.commitTransaction();
+        await User.findByIdAndUpdate(targetUserId, { $pull: { connections: currentUserId } });
 
         return NextResponse.json({ message: "Connection removed." }, { status: 200 });
     } catch (error) {
-        await session.abortTransaction();
         console.error('API Remove Connection Error:', error);
         return NextResponse.json({ message: 'An unexpected error occurred.', error: error.message }, { status: 500 });
-    } finally {
-        session.endSession();
     }
 }

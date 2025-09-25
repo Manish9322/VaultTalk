@@ -17,42 +17,34 @@ export async function POST(request, { params }) {
     return NextResponse.json({ message: "You cannot send a connection request to yourself." }, { status: 400 });
   }
 
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
   try {
-    const currentUser = await User.findById(currentUserId).session(session);
-    const targetUser = await User.findById(targetUserId).session(session);
+    const currentUser = await User.findById(currentUserId);
+    const targetUser = await User.findById(targetUserId);
 
     if (!currentUser || !targetUser) {
-      throw new Error("One or both users not found.");
+        return NextResponse.json({ message: "One or both users not found." }, { status: 404 });
     }
     
-    // Add outgoing request to current user
+    // Add outgoing request to current user if it doesn't exist
     const existingCurrentUserRequest = currentUser.connectionRequests.find(req => req.userId.toString() === targetUserId);
     if (!existingCurrentUserRequest) {
         currentUser.connectionRequests.push({ userId: targetUserId, status: 'pending-outgoing' });
     }
     
-    // Add incoming request to target user
+    // Add incoming request to target user if it doesn't exist
     const existingTargetUserRequest = targetUser.connectionRequests.find(req => req.userId.toString() === currentUserId);
     if (!existingTargetUserRequest) {
         targetUser.connectionRequests.push({ userId: currentUserId, status: 'pending-incoming' });
     }
 
-    await currentUser.save({ session });
-    await targetUser.save({ session });
-
-    await session.commitTransaction();
+    await currentUser.save();
+    await targetUser.save();
     
     return NextResponse.json({ message: "Connection request sent." }, { status: 200 });
 
   } catch (error) {
-    await session.abortTransaction();
     console.error('API Send Request Error:', error);
     return NextResponse.json({ message: 'An unexpected error occurred.', error: error.message }, { status: 500 });
-  } finally {
-    session.endSession();
   }
 }
 
@@ -69,45 +61,26 @@ export async function DELETE(request, { params }) {
     if (!currentUserId || !targetUserId || !action) {
         return NextResponse.json({ message: "Missing user IDs or action." }, { status: 400 });
     }
-
-    const session = await mongoose.startSession();
-    session.startTransaction();
     
     try {
-        const currentUser = await User.findById(currentUserId).session(session);
-        const targetUser = await User.findById(targetUserId).session(session);
+        const currentUser = await User.findById(currentUserId);
+        const targetUser = await User.findById(targetUserId);
 
         if (!currentUser || !targetUser) {
-            throw new Error("One or both users not found.");
+            return NextResponse.json({ message: "One or both users not found." }, { status: 404 });
         }
 
-        if (action === 'withdraw') {
-            // Current user withdraws request sent to target user
-            currentUser.connectionRequests = currentUser.connectionRequests.filter(r => r.userId.toString() !== targetUserId);
-            targetUser.connectionRequests = targetUser.connectionRequests.filter(r => r.userId.toString() !== currentUserId);
-        } else if (action === 'decline') {
-            // Current user declines request from target user
-            const targetUserRequestIndex = currentUser.connectionRequests.findIndex(r => r.userId.toString() === targetUserId);
-            if (targetUserRequestIndex > -1) {
-                // Change status to 'declined' for the current user
-                currentUser.connectionRequests[targetUserRequestIndex].status = 'declined';
-            }
-            // Remove the outgoing request from the other user
-            targetUser.connectionRequests = targetUser.connectionRequests.filter(r => r.userId.toString() !== currentUserId);
-        }
-
-        await currentUser.save({ session });
-        await targetUser.save({ session });
-
-        await session.commitTransaction();
+        // Current user withdraws request sent to target user OR declines request from target user
+        currentUser.connectionRequests = currentUser.connectionRequests.filter(r => r.userId.toString() !== targetUserId);
+        targetUser.connectionRequests = targetUser.connectionRequests.filter(r => r.userId.toString() !== currentUserId);
+        
+        await currentUser.save();
+        await targetUser.save();
         
         return NextResponse.json({ message: `Request ${action} successful.` }, { status: 200 });
 
     } catch(error) {
-        await session.abortTransaction();
         console.error('API Withdraw/Decline Error:', error);
         return NextResponse.json({ message: 'An unexpected error occurred.', error: error.message }, { status: 500 });
-    } finally {
-        session.endSession();
     }
 }
