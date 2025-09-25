@@ -31,10 +31,18 @@ export const exampleApi = createApi({
             body: credentials,
         }),
         invalidatesTags: ['User'],
+    }),
+    getAllUsers: builder.query({
+        query: () => 'users',
+        providesTags: ['User'],
+        transformResponse: (response) => {
+            // The user object from the DB has _id, but the frontend uses id.
+            return response.map(user => ({ ...user, id: user._id }));
+        }
     })
   }),
 })
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const { useGetExampleByNameQuery, useGetDbStatusQuery, useRegisterUserMutation, useLoginUserMutation } = exampleApi
+export const { useGetExampleByNameQuery, useGetDbStatusQuery, useRegisterUserMutation, useLoginUserMutation, useGetAllUsersQuery } = exampleApi
